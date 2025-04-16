@@ -1,0 +1,52 @@
+# Python
+*.pyc
+*.pyo
+__pycache__/
+*.pyd
+
+# Django
+*.log
+db.sqlite3
+media/
+staticfiles/
+*.pot
+*.py[cod]
+*.sqlite3
+.env
+.env.*
+
+# VSCode / IDEs
+.vscode/
+.idea/
+
+# macOS / Linux / Windows
+.DS_Store
+Thumbs.db
+
+# Virtual environment
+venv/
+env/
+isp/  # Your venv is named 'isp' based on the path, so ignore it
+
+# Migrations (optional, remove if you want to keep them in version control)
+**/migrations/*.py
+**/migrations/__pycache__/
+
+# Node / Frontend stuff (if any)
+node_modules/
+dist/
+build/
+
+# Coverage / Test / Reports
+htmlcov/
+.coverage
+.tox/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+
+# Compiled UI assets
+*.sass-cache
+*.css.map
+*.js.map
