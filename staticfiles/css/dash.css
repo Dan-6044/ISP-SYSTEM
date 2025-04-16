@@ -1,0 +1,137 @@
+/* dash.css */
+
+/* Base styles */
+.full-page-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    background-color: #f5f7fa;
+    padding: 30px; /* Increased padding */
+    margin-left: 150px;
+    transition: margin-left 0.3s ease;
+    overflow: hidden;
+}
+
+/* Form container - made significantly wider */
+.form-container {
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    padding: 40px; /* Increased padding */
+    width: 50vw;
+    max-width: 1200px; /* Increased from 90vw to fixed width */
+    margin: 0 auto;
+    transition: width 0.3s ease;
+}
+
+/* When sidebar is collapsed - make form even wider */
+.sidebar-collapsed .form-container {
+    max-width: 1400px; /* Increased width when sidebar collapsed */
+}
+
+/* Rest of your CSS remains the same */
+.form-heading {
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #34495e;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #3498db;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.form-select {
+    width: 100%;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    background-color: #fff;
+    cursor: pointer;
+}
+
+.btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background-color: #3498db;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #2980b9;
+    transform: translateY(-2px);
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+    .full-page-wrapper {
+        margin-left: 0;
+        height: 100vh;
+        overflow-y: auto;
+    }
+    
+    .form-container {
+        max-width: 95%;
+        padding: 25px;
+    }
+    
+    .sidebar-collapsed .full-page-wrapper {
+        margin-left: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .row {
+        flex-direction: column;
+    }
+    
+    .form-group {
+        width: 100%;
+    }
+    
+    .full-page-wrapper {
+        padding: 15px;
+    }
+}
+
+/* Utility classes */
+.mt-4 {
+    margin-top: 1.5rem;
+}
+
+.w-100 {
+    width: 100%;
+}

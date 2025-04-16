@@ -1,0 +1,149 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ISP SYSTEM{% endblock %}</title>
+
+    <link rel="icon" href="{% static 'images/favicon.png' %}">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/bootstrap-icons.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/font-awesome.css' %}">
+    <link rel="stylesheet" href="{% static 'css/leaflet.css' %}">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<main class="container-fluid">
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header d-flex justify-content-between align-items-center">
+            <span class="fs-5 fw-bold">ISP SYSTEM</span>
+            <button class="btn btn-sm btn-outline-light" id="toggleSidebarBtn">
+                <i class="bi bi-list"></i>
+            </button>
+        </div>
+
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'dashboard' %}">
+                    <i class="bi bi-speedometer2"></i>
+                    <span class="nav-link-text">Dashboard</span>
+                    <span class="badge-count">0</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="divider"></div>
+        <h4 class="section-heading">Devices</h4>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'mikrotiks' %}">
+                    <i class="bi bi-router"></i>
+                    <span class="nav-link-text">MikroTiks</span>
+                    <span class="badge-count">0</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'equipment' %}">
+                    <i class="bi bi-hdd-stack"></i>
+                    <span class="nav-link-text">Equipment</span>
+                    <span class="badge-count">0</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="divider"></div>
+        <h4 class="section-heading">Finances</h4>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'packages' %}">
+                    <i class="bi bi-box-seam"></i>
+                    <span class="nav-link-text">Packages</span>
+                    <span class="badge-count">0</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'payments' %}">
+                    <i class="bi bi-cash-stack"></i>
+                    <span class="nav-link-text">Payments</span>
+                    <span class="badge-count">0</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'vouchers' %}">
+                    <i class="bi bi-ticket-perforated"></i>
+                    <span class="nav-link-text">Vouchers</span>
+                    <span class="badge-count">0</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'expenses' %}">
+                    <i class="bi bi-receipt-cutoff"></i>
+                    <span class="nav-link-text">Expenses</span>
+                    <span class="badge-count">0</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="divider"></div>
+        <h4 class="section-heading">Users</h4>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'active_users' %}">
+                    <i class="bi bi-people-fill"></i>
+                    <span class="nav-link-text">Active Users</span>
+                    <span class="badge-count">0</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'all_users' %}">
+                    <i class="bi bi-people"></i>
+                    <span class="nav-link-text">All Users</span>
+                    <span class="badge-count">0</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="divider"></div>
+        <h4 class="section-heading">Communications</h4>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'sms' %}">
+                    <i class="bi bi-chat-left-text"></i>
+                    <span class="nav-link-text">SMS</span>
+                    <span class="badge-count">0</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'campaigns' %}">
+                    <i class="bi bi-megaphone"></i>
+                    <span class="nav-link-text">Campaigns</span>
+                    <span class="badge-count">0</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="main-content" id="mainContent">
+        <button class="btn btn-primary d-lg-none m-3" id="mobileMenuBtn">
+            <i class="bi bi-list"></i> Menu
+        </button>
+        {% block content %}
+        
+        
+        {% endblock %}
+    </div>
+</main>
+
+<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'js/leaflet.js' %}"></script>
+<script src="{% static 'js/master.js' %}"></script>
+
+</body>
+</html>

@@ -1,0 +1,85 @@
+{% extends 'master.html' %}
+
+{% block content %}
+<div class="container my-4 p-4 bg-light rounded-4 shadow-sm">
+
+  <!-- Search input and settings icon on top right -->
+  <div class="d-flex justify-content-end align-items-center mb-3">
+    <div class="input-group rounded-pill w-auto border">
+      <span class="input-group-text bg-white border-0 rounded-start-pill">
+        <i class="bi bi-search"></i>
+      </span>
+      <input type="text" class="form-control border-0" placeholder="Search users">
+    </div>
+    <button class="btn btn-outline-secondary ms-2 rounded-circle">
+      <i class="bi bi-gear-fill"></i>
+    </button>
+  </div>
+
+  <hr>
+
+  <!-- Header text on left and button on right -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h4 class="mb-0">Send SMS</h4>
+      <p class="mb-0 text-muted">Send SMS to a specific user or all users.</p>
+    </div>
+    <a href="{% url 'sms' %}" class="btn btn-secondary rounded-pill">
+      <i class="bi bi-arrow-left me-1"></i> Back to Logs
+    </a>
+  </div>
+
+  <!-- Form section -->
+  <form method="POST" class="bg-white rounded-4 shadow-sm p-4">
+    {% csrf_token %}
+
+    <!-- Send to all users checkbox -->
+    <div class="form-check mb-3">
+      <input class="form-check-input" type="checkbox" id="sendAll" name="send_all">
+      <label class="form-check-label" for="sendAll">
+        Send to all users
+      </label>
+    </div>
+
+    <!-- Dropdown for user selection (visible by default) -->
+    <div class="mb-3" id="userDropdown">
+      <label for="user" class="form-label">Select User</label>
+      <select class="form-select rounded-pill" id="user" name="user" required>
+        <option selected disabled>Select user</option>
+        <option value="John Doe">John Doe</option>
+        <option value="Jane Smith">Jane Smith</option>
+        <option value="Michael Otieno">Michael Otieno</option>
+      </select>
+    </div>
+
+    <!-- Message Input -->
+    <div class="mb-3">
+      <label for="message" class="form-label">Message</label>
+      <textarea class="form-control rounded-3" id="message" name="message" rows="4" placeholder="Enter your message here..." required></textarea>
+    </div>
+
+    <!-- Submit Button -->
+    <div class="text-end">
+      <button type="submit" class="btn btn-primary rounded-pill px-4">
+        <i class="bi bi-send me-1"></i> Send SMS
+      </button>
+    </div>
+  </form>
+
+  <!-- Page Footer -->
+  <footer class="text-center mt-4 text-muted small">
+    &copy; {{ now.year }} Your Company Name. All rights reserved.
+  </footer>
+</div>
+
+<!-- Script to toggle user dropdown visibility -->
+<script>
+  const sendAllCheckbox = document.getElementById('sendAll');
+  const userDropdown = document.getElementById('userDropdown');
+
+  sendAllCheckbox.addEventListener('change', function () {
+    userDropdown.style.display = this.checked ? 'none' : 'block';
+  });
+</script>
+
+{% endblock %}

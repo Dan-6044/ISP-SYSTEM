@@ -1,0 +1,85 @@
+from django.shortcuts import render
+
+
+def add_mikrotik(request):
+    
+    return render(request, 'devices/add_mikrotik.html')
+
+def view_mikrotik(request):
+    
+    return render(request, 'devices/view_mikrotiks.html')
+
+def equipments(request):
+    
+    return render(request, 'devices/equipments.html')
+
+def create_equipments(request):
+    
+    return render(request, 'devices/create-equipments.html')
+
+def dashboard(request):
+    
+    return render(request, 'dashboard/dashboard.html')
+
+def reports(request):
+    
+    return render(request, 'dashboard/reports.html')
+
+
+def add_clients(request):
+    
+    return render(request, 'clients/add_client.html')
+
+def view_clients(request):
+    
+    return render(request, 'clients/view_clients.html')
+
+
+def packages(request):
+    
+    return render(request, 'finances/packages.html')
+
+def create_packages(request):
+    
+    return render(request, 'finances/create_packages.html')
+
+def payments(request):
+    
+    return render(request, 'finances/payments.html')
+
+def add_payments(request):
+    
+    return render(request, 'finances/add_payments.html')
+
+def view_plans(request):
+    
+    return render(request, 'finances/view_plans.html')
+
+def transactions(request):
+    
+    return render(request, 'finances/payments.html')
+
+def billings(request):
+    
+    return render(request, 'finances/vouchers.html')
+
+
+def expenses(request):
+    
+    return render(request, 'finances/expenses.html')
+
+def access(request):
+    
+    return render(request, 'user/access.html')
+
+def profile(request):
+    
+    return render(request, 'user/profile.html')
+
+def sms(request):
+    
+    return render(request, 'communications/sms.html')
+
+def send_sms(request):
+    
+    return render(request, 'communications/send-sms.html')

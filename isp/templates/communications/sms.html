@@ -1,0 +1,234 @@
+{% extends 'master.html' %}
+
+{% block content %}
+<style>
+  /* Tooltip bubble style */
+  .bubble-tooltip {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+  }
+
+  .bubble-tooltip .bubble-text {
+    visibility: hidden;
+    position: absolute;
+    background-color: #343a40;
+    color: #fff;
+    padding: 10px 14px;
+    border-radius: 12px;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    z-index: 999;
+    font-size: 14px;
+  }
+
+  .bubble-tooltip .bubble-text::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -6px;
+    border-width: 6px;
+    border-style: solid;
+    border-color: #343a40 transparent transparent transparent;
+  }
+
+  .bubble-tooltip:hover .bubble-text {
+    visibility: visible;
+  }
+
+  /* Remove underline on click for sorting */
+  th.sortable {
+    cursor: pointer;
+  }
+
+  /* Add icons for sorted columns */
+  th.sorted-asc::after {
+    content: "\2191"; /* Up arrow */
+    font-size: 1.2rem;
+    padding-left: 5px;
+  }
+
+  th.sorted-desc::after {
+    content: "\2193"; /* Down arrow */
+    font-size: 1.2rem;
+    padding-left: 5px;
+  }
+</style>
+
+<div class="container my-4 p-4 bg-light rounded-4 shadow-sm">
+  <!-- Top section -->
+  <div class="d-flex justify-content-end align-items-center mb-3">
+    <div class="input-group rounded-pill w-auto border">
+      <span class="input-group-text bg-white border-0 rounded-start-pill">
+        <i class="bi bi-search"></i>
+      </span>
+      <input type="text" class="form-control border-0" placeholder="Search messages">
+    </div>
+    <button class="btn btn-outline-secondary ms-2 rounded-circle">
+      <i class="bi bi-gear-fill"></i>
+    </button>
+  </div>
+
+  <hr>
+
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h4 class="mb-0">SMS Logs</h4>
+      <p class="mb-0 text-muted">View and manage all sent messages.</p>
+    </div>
+    <a href="{% url 'send_sms' %}" class="btn btn-primary rounded-pill">
+      <i class="bi bi-chat-dots me-1"></i> Send SMS
+    </a>
+  </div>
+
+  <!-- Table Section -->
+  <div class="table-responsive bg-white rounded-4 shadow-sm p-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div class="input-group rounded-pill w-auto border">
+        <span class="input-group-text bg-white border-0 rounded-start-pill">
+          <i class="bi bi-search"></i>
+        </span>
+        <input type="text" class="form-control border-0" placeholder="Search in table">
+      </div>
+      <button id="bulkDeleteBtn" class="btn btn-danger btn-sm rounded-pill d-none">
+        <i class="bi bi-trash"></i> Bulk Delete
+      </button>
+    </div>
+
+    <!-- Table -->
+    <table id="smsTable" class="table align-middle table-borderless">
+      <thead class="table-light border-bottom">
+        <tr>
+          <th><input type="checkbox" id="selectAll"></th>
+          <th class="sortable">User</th>
+          <th class="sortable">Phone</th>
+          <th class="sortable" style="width: 30%;">Message</th>
+          <th class="sortable">Delivered</th>
+          <th class="sortable">Sent</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="border-bottom">
+          <td><input type="checkbox" class="row-check"></td>
+          <td>John Doe</td>
+          <td>+254712345678</td>
+          <td>
+            <div class="bubble-tooltip">
+              <span class="text-truncate d-inline-block" style="max-width: 250px;">Hello John, your appointment is scheduled...</span>
+              <div class="bubble-text">Hello John, your appointment is scheduled for tomorrow at 10 AM. Please confirm.</div>
+            </div>
+          </td>
+          <td>
+            <span class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 25px; height: 25px;">
+              <i class="bi bi-check"></i>
+            </span>
+          </td>
+          <td>2025-04-16 10:35 AM</td>
+        </tr>
+        <tr class="border-bottom">
+          <td><input type="checkbox" class="row-check"></td>
+          <td>Jane Smith</td>
+          <td>+254798765432</td>
+          <td>
+            <div class="bubble-tooltip">
+              <span class="text-truncate d-inline-block" style="max-width: 250px;">Hi Jane, your subscription is due...</span>
+              <div class="bubble-text">Hi Jane, your subscription is due. Kindly renew to avoid service disruption.</div>
+            </div>
+          </td>
+          <td>
+            <span class="bg-danger text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 25px; height: 25px;">
+              <i class="bi bi-x"></i>
+            </span>
+          </td>
+          <td>2025-04-16 09:20 AM</td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="6">
+            <div class="d-flex justify-content-between align-items-center mt-3 border-top pt-3">
+              <div class="text-muted">Showing 1-2 of 20 messages</div>
+              <div class="d-flex align-items-center gap-3">
+                <label class="text-muted">Rows per page:</label>
+                <select class="form-select form-select-sm w-auto rounded-pill">
+                  <option>5</option>
+                  <option selected>10</option>
+                  <option>20</option>
+                </select>
+                <button class="btn btn-outline-secondary btn-sm rounded-pill">
+                  <i class="bi bi-chevron-left"></i>
+                </button>
+                <button class="btn btn-outline-secondary btn-sm rounded-pill">
+                  <i class="bi bi-chevron-right"></i>
+                </button>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <footer class="mt-4 text-center text-muted small">
+    &copy; {{ now.year }} Your Company Name. All rights reserved.
+  </footer>
+</div>
+
+<!-- Bulk Delete JS -->
+<script>
+  const selectAll = document.getElementById('selectAll');
+  const checkboxes = document.querySelectorAll('.row-check');
+  const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+
+  function updateBulkDeleteVisibility() {
+    const anyChecked = Array.from(checkboxes).some(cb => cb.checked);
+    bulkDeleteBtn.classList.toggle('d-none', !anyChecked);
+  }
+
+  selectAll?.addEventListener('change', function () {
+    checkboxes.forEach(checkbox => checkbox.checked = this.checked);
+    updateBulkDeleteVisibility();
+  });
+
+  checkboxes.forEach(cb => {
+    cb.addEventListener('change', updateBulkDeleteVisibility);
+  });
+</script>
+
+<!-- Sorting JS -->
+<script>
+  const table = document.getElementById('smsTable');
+  const headers = table.querySelectorAll("th.sortable");
+  let currentSort = { index: null, direction: 1 };
+
+  headers.forEach((header, i) => {
+    header.addEventListener("click", () => {
+      const tbody = table.querySelector("tbody");
+      const rows = Array.from(tbody.querySelectorAll("tr"));
+
+      if (currentSort.index === i) {
+        currentSort.direction *= -1;
+      } else {
+        currentSort = { index: i, direction: 1 };
+      }
+
+      // Remove sorted classes
+      headers.forEach(h => h.classList.remove('sorted-asc', 'sorted-desc'));
+
+      header.classList.add(currentSort.direction === 1 ? 'sorted-asc' : 'sorted-desc');
+
+      rows.sort((a, b) => {
+        const aText = a.children[i].innerText.trim().toLowerCase();
+        const bText = b.children[i].innerText.trim().toLowerCase();
+        return aText.localeCompare(bText) * currentSort.direction;
+      });
+
+      rows.forEach(row => tbody.appendChild(row));
+    });
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,151 @@
+{% extends 'master.html' %}
+
+{% block content %}
+<div class="container my-4 p-4 bg-light rounded-4 shadow-sm">
+
+  <!-- Search input and settings icon on top right -->
+  <div class="d-flex justify-content-end align-items-center mb-3">
+    <div class="input-group rounded-pill w-auto border">
+      <span class="input-group-text bg-white border-0 rounded-start-pill">
+        <i class="bi bi-search"></i>
+      </span>
+      <input type="text" class="form-control border-0" placeholder="Search equipment">
+    </div>
+    <button class="btn btn-outline-secondary ms-2 rounded-circle">
+      <i class="bi bi-gear-fill"></i>
+    </button>
+  </div>
+
+  <hr>
+
+  <!-- Header text on left and button on right -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h4 class="mb-0">Equipment</h4>
+      <p class="mb-0 text-muted">Manage your equipment information below.</p>
+    </div>
+    <a href="{% url 'create-equipment' %}" class="btn btn-primary rounded-pill">
+        <i class="bi bi-plus-lg me-1"></i> Add Equipment
+      </a>      
+  </div>
+
+  <!-- Table section -->
+  <div class="table-responsive bg-white rounded-4 shadow-sm p-3">
+    <!-- Top row with search and bulk delete (hidden by default) -->
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <div class="input-group rounded-pill w-auto border">
+        <span class="input-group-text bg-white border-0 rounded-start-pill">
+          <i class="bi bi-search"></i>
+        </span>
+        <input type="text" class="form-control border-0" placeholder="Search in table">
+      </div>
+      <button id="bulkDeleteBtn" class="btn btn-danger btn-sm rounded-pill d-none">
+        <i class="bi bi-trash"></i> Bulk Delete
+      </button>
+    </div>
+
+    <!-- Table -->
+    <table class="table align-middle table-borderless">
+      <thead class="table-light border-bottom">
+        <tr>
+          <th scope="col"><input type="checkbox" id="selectAll"></th>
+          <th scope="col">User</th>
+          <th scope="col">Type</th>
+          <th scope="col">Equipment Name</th>
+          <th scope="col">Price</th>
+          <th scope="col">Paid</th>
+          <th scope="col">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Example rows -->
+        <tr class="border-bottom">
+          <td><input type="checkbox" class="row-check"></td>
+          <td>John Doe</td>
+          <td>Generator</td>
+          <td>Honda EU2200i</td>
+          <td>$1000</td>
+          <td>$800</td>
+          <td>
+            <div class="dropdown">
+              <button class="btn btn-sm btn-outline-secondary dropdown-toggle rounded-pill" type="button" data-bs-toggle="dropdown">
+                Action
+              </button>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item text-danger" href="#">Delete</a></li>
+                <li><a class="dropdown-item" href="#">Edit</a></li>
+              </ul>
+            </div>
+          </td>
+        </tr>
+        <tr class="border-bottom">
+          <td><input type="checkbox" class="row-check"></td>
+          <td>Joho Moho</td>
+          <td>Router</td>
+          <td>Huawei AX3</td>
+          <td>$350</td>
+          <td>$350</td>
+          <td>
+            <div class="dropdown">
+              <button class="btn btn-sm btn-outline-secondary dropdown-toggle rounded-pill" type="button" data-bs-toggle="dropdown">
+                Action
+              </button>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item text-danger" href="#">Delete</a></li>
+                <li><a class="dropdown-item" href="#">Edit</a></li>
+              </ul>
+            </div>
+          </td>
+        </tr>
+        <!-- Add more rows as needed -->
+      </tbody>
+
+      <!-- Table footer -->
+      <tfoot>
+        <tr>
+          <td colspan="7">
+            <div class="d-flex justify-content-between align-items-center mt-3">
+              <div class="text-muted">Showing 2 of 20 equipment</div>
+              <div class="d-flex align-items-center">
+                <label for="rowsPerPage" class="me-2 text-muted">Rows per page:</label>
+                <select id="rowsPerPage" class="form-select form-select-sm w-auto rounded-pill">
+                  <option>5</option>
+                  <option selected>10</option>
+                  <option>20</option>
+                  <option>50</option>
+                </select>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <!-- Page footer -->
+  <footer class="mt-4 text-center text-muted small">
+    &copy; {{ now.year }} Your Company Name. All rights reserved.
+  </footer>
+</div>
+
+<!-- Optional JS to handle bulk delete visibility -->
+<script>
+  const selectAll = document.getElementById('selectAll');
+  const checkboxes = document.querySelectorAll('.row-check');
+  const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+
+  function updateBulkDeleteVisibility() {
+    const anyChecked = Array.from(checkboxes).some(checkbox => checkbox.checked);
+    bulkDeleteBtn.classList.toggle('d-none', !anyChecked);
+  }
+
+  selectAll?.addEventListener('change', function () {
+    checkboxes.forEach(checkbox => checkbox.checked = this.checked);
+    updateBulkDeleteVisibility();
+  });
+
+  checkboxes.forEach(cb => {
+    cb.addEventListener('change', updateBulkDeleteVisibility);
+  });
+</script>
+{% endblock %}

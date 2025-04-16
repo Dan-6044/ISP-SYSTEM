@@ -1,0 +1,286 @@
+{% extends 'master.html' %}
+
+
+{% block content %}
+
+<style>
+  .tab-header {
+    font-weight: 600;
+    cursor: pointer;
+    position: relative;
+    padding-bottom: 6px;
+  }
+  .tab-header.active {
+    color: goldenrod;
+    border-bottom: 3px solid goldenrod;
+  }
+  .tab-header .badge {
+    background-color: goldenrod;
+    color: white;
+    font-size: 0.75rem;
+    margin-left: 5px;
+  }
+  .three-dots {
+    cursor: pointer;
+  }
+  .action-menu {
+    position: absolute;
+    right: 10px;
+    top: 30px;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    display: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+  }
+  .action-menu button {
+    border: none;
+    background: none;
+    padding: 8px 12px;
+    width: 100%;
+    text-align: left;
+  }
+  .action-menu button:hover {
+    background-color: #f8f9fa;
+  }
+  .sortable {
+    cursor: pointer;
+  }
+  .sortable .up_down_icon {
+    margin-left: 5px;
+    font-size: 0.8rem;
+  }
+</style>
+
+<div class="container my-4 p-4 bg-light rounded-4 shadow-sm">
+  <div class="d-flex justify-content-end align-items-center mb-3">
+    <div class="input-group rounded-pill w-auto border">
+      <span class="input-group-text bg-white border-0 rounded-start-pill"><i class="bi bi-search"></i></span>
+      <input type="text" class="form-control border-0" placeholder="Search packages" id="searchInputTop">
+    </div>
+    <button class="btn btn-outline-secondary ms-2 rounded-circle"><i class="bi bi-gear-fill"></i></button>
+  </div>
+
+  <hr>
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h4 class="mb-0">Packages</h4>
+      <p class="mb-0 text-muted">Manage internet packages.</p>
+    </div>
+    <a href="{% url 'create_packages' %}" class="btn btn-primary rounded-pill"><i class="bi bi-plus-circle me-1"></i> Add Package</a>
+  </div>
+
+  <!-- Tabs -->
+  <div class="d-flex gap-4 border-bottom pb-2 mb-3">
+    <div class="tab-header active" data-target="all">
+      <i class="bi bi-layers"></i> All <span class="badge">3</span>
+    </div>
+    <div class="tab-header" data-target="hotspot">
+      <i class="bi bi-wifi"></i> Hotspots <span class="badge">1</span>
+    </div>
+    <div class="tab-header" data-target="pppoe">
+      <i class="bi bi-plug"></i> PPPoE <span class="badge">2</span>
+    </div>
+  </div>
+
+  <div class="table-responsive bg-white rounded-4 shadow-sm p-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div class="input-group rounded-pill w-auto border">
+        <span class="input-group-text bg-white border-0 rounded-start-pill">
+          <i class="bi bi-search"></i>
+        </span>
+        <input type="text" class="form-control border-0" placeholder="Search in table" id="searchInputTable">
+      </div>
+      <button id="bulk-delete-btn" class="btn btn-danger btn-sm rounded-pill d-none">
+        <i class="bi bi-trash"></i> Bulk Delete
+      </button>      
+    </div>
+
+    <table id="packagesTable" class="table align-middle table-borderless">
+      <thead class="table-light border-bottom">
+        <tr>
+          <th><input type="checkbox" id="checkAll"></th>
+          <th class="sortable" data-column="name">Name <i class="bi bi-chevron-expand"></i></th>
+          <th class="sortable" data-column="price">Price <i class="bi bi-chevron-expand"></i></th>
+          <th class="sortable" data-column="speed">Speed <i class="bi bi-chevron-expand"></i></th>
+          <th class="sortable" data-column="time">Time <i class="bi bi-chevron-expand"></i></th>
+          <th class="sortable" data-column="type">Type <i class="bi bi-chevron-expand"></i></th>
+          <th class="sortable" data-column="devices">Devices <i class="bi bi-chevron-expand"></i></th>
+          <th class="sortable" data-column="enabled">Enabled <i class="bi bi-chevron-expand"></i></th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+      <tfoot>
+        <tr>
+          <td colspan="9">
+            <div class="d-flex justify-content-between align-items-center mt-3 border-top pt-3">
+              <div class="text-muted" id="resultCount">Showing 0 results</div>
+              <div class="d-flex align-items-center gap-3">
+                <label class="text-muted">Rows per page:</label>
+                <select class="form-select form-select-sm w-auto rounded-pill" id="rowsPerPage">
+                  <option>2</option>
+                  <option>5</option>
+                  <option selected>10</option>
+                </select>
+                <button class="btn btn-outline-secondary btn-sm rounded-pill" id="prevPageBtn">
+                  <i class="bi bi-chevron-left"></i>
+                </button>
+                <button class="btn btn-outline-secondary btn-sm rounded-pill" id="nextPageBtn">
+                  <i class="bi bi-chevron-right"></i>
+                </button>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+  <footer class="mt-4 text-center text-muted small">
+    &copy; {{ now.year }} Your Company Name. All rights reserved.
+  </footer>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const packages = [
+      { name: "Gold Plan", price: "$20", speed: "50 Mbps", time: "30 Days", type: "PPPoE", devices: "2", enabled: true },
+      { name: "Hotspot Pro", price: "$10", speed: "10 Mbps", time: "7 Days", type: "Hotspot", devices: "Unlimited", enabled: false },
+      { name: "Silver Plan", price: "$15", speed: "20 Mbps", time: "14 Days", type: "PPPoE", devices: "3", enabled: true },
+    ];
+
+    let currentPage = 1;
+    let rowsPerPage = 10;
+    let sortDirection = 'asc';
+    let sortedColumn = 'name';
+
+    function renderTable() {
+      const tableBody = document.getElementById("tableBody");
+      tableBody.innerHTML = "";
+
+      const activeTab = document.querySelector(".tab-header.active").dataset.target;
+      const filtered = packages.filter(pkg => activeTab === 'all' || pkg.type.toLowerCase() === activeTab);
+
+      filtered.sort((a, b) => sortDirection === 'asc' ? a[sortedColumn] > b[sortedColumn] ? 1 : -1 : a[sortedColumn] < b[sortedColumn] ? 1 : -1);
+
+      const start = (currentPage - 1) * rowsPerPage;
+      const end = start + rowsPerPage;
+      const paginated = filtered.slice(start, end);
+
+      document.getElementById("resultCount").textContent = `Showing ${start + 1}-${Math.min(end, filtered.length)} of ${filtered.length} results`;
+
+      paginated.forEach(pkg => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td><input type="checkbox" class="row-checkbox "></td>
+          <td>${pkg.name}</td>
+          <td>${pkg.price}</td>
+          <td>${pkg.speed}</td>
+          <td>${pkg.time}</td>
+          <td>${pkg.type}</td>
+          <td>${pkg.devices}</td>
+          <td><span class="bg-${pkg.enabled ? 'success' : 'danger'} text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 25px; height: 25px;"><i class="bi bi-${pkg.enabled ? 'check' : 'x'}"></i></span></td>
+          <td class="position-relative">
+            <i class="bi bi-three-dots-vertical three-dots"></i>
+            <div class="action-menu">
+              <button class="text-danger"><i class="bi bi-trash"></i> Delete</button>
+              <button class="text-primary"><i class="bi bi-pencil-square"></i> Edit</button>
+            </div>
+          </td>
+        `;
+        tableBody.appendChild(row);
+      });
+    }
+
+    document.querySelectorAll(".sortable").forEach(header => {
+      header.addEventListener("click", function () {
+        const column = this.dataset.column;
+        sortDirection = sortedColumn === column && sortDirection === 'asc' ? 'desc' : 'asc';
+        sortedColumn = column;
+        renderTable();
+      });
+    });
+
+    document.querySelectorAll(".tab-header").forEach(tab => {
+      tab.addEventListener("click", function () {
+        document.querySelectorAll(".tab-header").forEach(t => t.classList.remove("active"));
+        this.classList.add("active");
+        currentPage = 1;
+        renderTable();
+      });
+    });
+
+    document.getElementById("tableBody").addEventListener("click", function (e) {
+      if (e.target.classList.contains("three-dots")) {
+        const menu = e.target.nextElementSibling;
+        menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        document.querySelectorAll(".action-menu").forEach(m => {
+          if (m !== menu) m.style.display = 'none';
+        });
+      }
+    });
+
+    document.addEventListener("click", function (e) {
+      if (!e.target.closest(".three-dots") && !e.target.closest(".action-menu")) {
+        document.querySelectorAll(".action-menu").forEach(menu => menu.style.display = 'none');
+      }
+    });
+
+    document.getElementById("rowsPerPage").addEventListener("change", function () {
+      rowsPerPage = parseInt(this.value);
+      currentPage = 1;
+      renderTable();
+    });
+
+    document.getElementById("prevPageBtn").addEventListener("click", () => {
+      if (currentPage > 1) {
+        currentPage--;
+        renderTable();
+      }
+    });
+
+    document.getElementById("nextPageBtn").addEventListener("click", () => {
+      currentPage++;
+      renderTable();
+    });
+
+    renderTable();
+  });
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const checkAll = document.getElementById("checkAll");
+      const checkboxes = document.querySelectorAll(".row-checkbox");
+      const bulkDeleteBtn = document.getElementById("bulk-delete-btn");
+      
+      // Function to toggle the visibility of the bulk delete button
+      function toggleBulkDeleteButton() {
+        const anyChecked = Array.from(checkboxes).some(cb => cb.checked);
+        if (anyChecked) {
+          bulkDeleteBtn.classList.remove("d-none");
+        } else {
+          bulkDeleteBtn.classList.add("d-none");
+        }
+      }
+      
+      // When the "Check All" checkbox is changed, check/uncheck all row checkboxes
+      checkAll.addEventListener("change", function () {
+        checkboxes.forEach(cb => cb.checked = this.checked);
+        toggleBulkDeleteButton(); // Toggle bulk delete visibility
+      });
+      
+      // When any row checkbox is changed, update the "Check All" checkbox and toggle bulk delete visibility
+      checkboxes.forEach(cb => {
+        cb.addEventListener("change", function () {
+          if (!this.checked) checkAll.checked = false; // Uncheck "Check All" if any checkbox is unchecked
+          if (Array.from(checkboxes).every(cb => cb.checked)) checkAll.checked = true; // Check "Check All" if all checkboxes are checked
+          toggleBulkDeleteButton(); // Toggle bulk delete visibility
+        });
+      });
+    });
+  </script>
+  
+  
+{% endblock %}

@@ -1,0 +1,290 @@
+{% extends 'master.html' %}
+
+{% block content %}
+
+<style>
+  .tab-header {
+    font-weight: 600;
+    cursor: pointer;
+    position: relative;
+    padding-bottom: 6px;
+  }
+  .tab-header.active {
+    color: goldenrod;
+    border-bottom: 3px solid goldenrod;
+  }
+  .tab-header .badge {
+    background-color: goldenrod;
+    color: white;
+    font-size: 0.75rem;
+    margin-left: 5px;
+  }
+  .three-dots {
+    cursor: pointer;
+  }
+  .action-menu {
+    position: absolute;
+    right: 10px;
+    top: 30px;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    display: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+  }
+  .action-menu button {
+    border: none;
+    background: none;
+    padding: 8px 12px;
+    width: 100%;
+    text-align: left;
+  }
+  .action-menu button:hover {
+    background-color: #f8f9fa;
+  }
+  .sortable {
+    cursor: pointer;
+  }
+  .sortable .up_down_icon {
+    margin-left: 5px;
+    font-size: 0.8rem;
+  }
+</style>
+
+<div class="container my-4 p-4 bg-light rounded-4 shadow-sm">
+  <div class="d-flex justify-content-end align-items-center mb-3">
+    <div class="input-group rounded-pill w-auto border">
+      <span class="input-group-text bg-white border-0 rounded-start-pill"><i class="bi bi-search"></i></span>
+      <input type="text" class="form-control border-0" placeholder="Search payments" id="searchInputTop">
+    </div>
+    <button class="btn btn-outline-secondary ms-2 rounded-circle"><i class="bi bi-gear-fill"></i></button>
+  </div>
+
+  <hr>
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h4 class="mb-0">Packages</h4>
+        <p class="mb-0 text-muted">Manage internet packages.</p>
+      </div>
+      <a href="{% url 'add_payments' %}" class="btn btn-primary rounded-pill"><i class="bi bi-plus-circle me-1"></i> Add Package</a>
+    </div>
+
+  <!-- Tabs -->
+  <div class="d-flex gap-4 border-bottom pb-2 mb-3">
+    <div class="tab-header active" data-target="checked">
+      <i class="bi bi-check-circle"></i> Checked <span class="badge">3</span>
+    </div>
+    <div class="tab-header" data-target="unchecked">
+      <i class="bi bi-x-circle"></i> Unchecked <span class="badge">3</span>
+    </div>
+  </div>
+
+  <div class="table-responsive bg-white rounded-4 shadow-sm p-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="input-group rounded-pill w-auto border">
+          <span class="input-group-text bg-white border-0 rounded-start-pill">
+            <i class="bi bi-search"></i>
+          </span>
+          <input type="text" class="form-control border-0" placeholder="Search in table" id="searchInputTable">
+        </div>
+        <button id="bulk-export-btn" class="btn btn-primary btn-sm rounded-pill d-none">
+            <i class="bi bi-box-arrow-up"></i> Bulk Export
+          </button>
+                
+      </div>
+
+    <table id="paymentsTable" class="table align-middle table-borderless">
+      <thead class="table-light border-bottom">
+        <tr>
+          <th><input type="checkbox" id="checkAll"></th>
+          <th class="sortable" data-column="user">User <i class="bi bi-chevron-expand"></i></th>
+          <th class="sortable" data-column="receipt">Receipt No <i class="bi bi-chevron-expand"></i></th>
+          <th class="sortable" data-column="amount">Amount <i class="bi bi-chevron-expand"></i></th>
+          <th class="sortable" data-column="checked">Checked <i class="bi bi-chevron-expand"></i></th>
+          <th class="sortable" data-column="paid_at">Paid At <i class="bi bi-chevron-expand"></i></th>
+          <th class="sortable" data-column="disbursment">Disbursment <i class="bi bi-chevron-expand"></i></th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        <!-- Example data rows -->
+        
+        <!-- Add more records here -->
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="8">
+            <div class="d-flex justify-content-between align-items-center mt-3 border-top pt-3">
+              <div class="text-muted" id="resultCount">Showing 0 results</div>
+              <div class="d-flex align-items-center gap-3">
+                <label class="text-muted">Rows per page:</label>
+                <select class="form-select form-select-sm w-auto rounded-pill" id="rowsPerPage">
+                  <option>2</option>
+                  <option>5</option>
+                  <option selected>10</option>
+                </select>
+                <button class="btn btn-outline-secondary btn-sm rounded-pill" id="prevPageBtn">
+                  <i class="bi bi-chevron-left"></i>
+                </button>
+                <button class="btn btn-outline-secondary btn-sm rounded-pill" id="nextPageBtn">
+                  <i class="bi bi-chevron-right"></i>
+                </button>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const payments = [
+        { user: "John Doe", receipt: "#R12345", amount: "$500", checked: true, paid_at: "2025-04-16", disbursment: "$500" },
+        { user: "Jane Smith", receipt: "#R12346", amount: "$300", checked: false, paid_at: "2025-04-14", disbursment: "$300" },
+        { user: "David Lee", receipt: "#R12347", amount: "$700", checked: true, paid_at: "2025-04-10", disbursment: "$700" },
+        { user: "Emma Brown", receipt: "#R12348", amount: "$150", checked: false, paid_at: "2025-04-05", disbursment: "$150" },
+        { user: "Lucas Green", receipt: "#R12349", amount: "$250", checked: true, paid_at: "2025-04-03", disbursment: "$250" },
+        { user: "Sophia White", receipt: "#R12350", amount: "$400", checked: false, paid_at: "2025-03-28", disbursment: "$400" },
+      ];
+  
+      let currentPage = 1;
+      let rowsPerPage = 10;
+      let sortDirection = 'asc';
+      let sortedColumn = 'user';
+  
+      function renderTable() {
+        const tableBody = document.getElementById("tableBody");
+        tableBody.innerHTML = "";
+  
+        const activeTab = document.querySelector(".tab-header.active").dataset.target;
+        const filtered = payments.filter(payment => activeTab === 'checked' ? payment.checked : !payment.checked);
+  
+        filtered.sort((a, b) => {
+          const aVal = a[sortedColumn];
+          const bVal = b[sortedColumn];
+          return sortDirection === 'asc' ? (aVal > bVal ? 1 : -1) : (aVal < bVal ? 1 : -1);
+        });
+  
+        const start = (currentPage - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+        const paginated = filtered.slice(start, end);
+  
+        document.getElementById("resultCount").textContent = `Showing ${start + 1}-${Math.min(end, filtered.length)} of ${filtered.length} results`;
+  
+        paginated.forEach((payment, index) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td><input type="checkbox" class="row-checkbox "></td>
+            <td>${payment.user}</td>
+            <td>${payment.receipt}</td>
+            <td>${payment.amount}</td>
+            <td><span class="bg-${payment.checked ? 'success' : 'danger'} text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 25px; height: 25px;"><i class="bi bi-${payment.checked ? 'check' : 'x'}"></i></span></td>
+            <td>${payment.paid_at}</td>
+            <td>${payment.disbursment}</td>
+            <td class="position-relative">
+              <i class="bi bi-three-dots-vertical three-dots" style="cursor: pointer;"></i>
+              <div class="action-menu position-absolute bg-white border rounded shadow-sm p-2" style="top: 100%; right: 0; display: none; z-index: 10;">
+                <button class="text-primary btn btn-sm"><i class="bi bi-eye"></i> View Payment</button>
+              </div>
+            </td>
+          `;
+          tableBody.appendChild(row);
+        });
+  
+        // Add click event listeners to each three-dots icon to toggle action menu
+        document.querySelectorAll(".three-dots").forEach(dot => {
+          dot.addEventListener("click", function (e) {
+            e.stopPropagation();
+            const currentMenu = this.nextElementSibling;
+            document.querySelectorAll(".action-menu").forEach(menu => {
+              if (menu !== currentMenu) {
+                menu.style.display = "none";
+              }
+            });
+            currentMenu.style.display = currentMenu.style.display === "block" ? "none" : "block";
+          });
+        });
+  
+        // Hide all menus if clicking outside
+        document.addEventListener("click", function () {
+          document.querySelectorAll(".action-menu").forEach(menu => menu.style.display = "none");
+        });
+      }
+  
+      document.querySelectorAll(".sortable").forEach(header => {
+        header.addEventListener("click", function () {
+          const column = this.dataset.column;
+          sortDirection = sortedColumn === column && sortDirection === 'asc' ? 'desc' : 'asc';
+          sortedColumn = column;
+          renderTable();
+        });
+      });
+  
+      document.querySelectorAll(".tab-header").forEach(tab => {
+        tab.addEventListener("click", function () {
+          document.querySelectorAll(".tab-header").forEach(tab => tab.classList.remove("active"));
+          this.classList.add("active");
+          renderTable();
+        });
+      });
+  
+      document.getElementById("rowsPerPage").addEventListener("change", function () {
+        rowsPerPage = parseInt(this.value);
+        renderTable();
+      });
+  
+      document.getElementById("prevPageBtn").addEventListener("click", function () {
+        if (currentPage > 1) {
+          currentPage--;
+          renderTable();
+        }
+      });
+  
+      document.getElementById("nextPageBtn").addEventListener("click", function () {
+        currentPage++;
+        renderTable();
+      });
+  
+      renderTable();
+    });
+  </script>
+  
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const checkAll = document.getElementById("checkAll");
+      const checkboxes = document.querySelectorAll(".row-checkbox");
+      const bulkDeleteBtn = document.getElementById("bulk-export-btn");
+      
+      // Function to toggle the visibility of the bulk delete button
+      function toggleBulkDeleteButton() {
+        const anyChecked = Array.from(checkboxes).some(cb => cb.checked);
+        if (anyChecked) {
+          bulkDeleteBtn.classList.remove("d-none");
+        } else {
+          bulkDeleteBtn.classList.add("d-none");
+        }
+      }
+      
+      // When the "Check All" checkbox is changed, check/uncheck all row checkboxes
+      checkAll.addEventListener("change", function () {
+        checkboxes.forEach(cb => cb.checked = this.checked);
+        toggleBulkDeleteButton(); // Toggle bulk delete visibility
+      });
+      
+      // When any row checkbox is changed, update the "Check All" checkbox and toggle bulk delete visibility
+      checkboxes.forEach(cb => {
+        cb.addEventListener("change", function () {
+          if (!this.checked) checkAll.checked = false; // Uncheck "Check All" if any checkbox is unchecked
+          if (Array.from(checkboxes).every(cb => cb.checked)) checkAll.checked = true; // Check "Check All" if all checkboxes are checked
+          toggleBulkDeleteButton(); // Toggle bulk delete visibility
+        });
+      });
+    });
+  </script>
+
+{% endblock %}

@@ -1,0 +1,214 @@
+{% extends 'master.html' %}
+
+{% block content %}
+<div class="container my-4 p-4 bg-light rounded-4 shadow-sm">
+
+  <!-- Search input and settings icon on top right -->
+  <div class="d-flex justify-content-end align-items-center mb-3">
+    <div class="input-group rounded-pill w-auto border">
+      <span class="input-group-text bg-white border-0 rounded-start-pill">
+        <i class="bi bi-search"></i>
+      </span>
+      <input type="text" class="form-control border-0" placeholder="Search package">
+    </div>
+    <button class="btn btn-outline-secondary ms-2 rounded-circle">
+      <i class="bi bi-gear-fill"></i>
+    </button>
+  </div>
+
+  <hr>
+
+  <!-- Header text on left and button on right -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h4 class="mb-0">Create Package</h4>
+      <p class="mb-0 text-muted">Create packages for your service offerings.</p>
+    </div>
+    <a href="{% url 'packages' %}" class="btn btn-secondary rounded-pill">
+      <i class="bi bi-arrow-left me-1"></i> Back to List
+    </a>
+  </div>
+
+  <!-- Form section -->
+  <form method="POST" class="bg-white rounded-4 shadow-sm p-4">
+    {% csrf_token %}
+
+    <!-- Package Type Dropdown -->
+    <div class="mb-3">
+      <label for="type" class="form-label">Package Type</label>
+      <select class="form-select rounded-pill" id="type" name="type" required>
+        <option selected disabled>Select package type</option>
+        <option value="PPoE">PPoE</option>
+        <option value="Hotspot">Hotspot</option>
+      </select>
+    </div>
+
+    <!-- Package Name and Duration (Same row) -->
+    <div class="row">
+      <div class="mb-3 col-md-6">
+        <label for="name" class="form-label">Package Name</label>
+        <input type="text" class="form-control rounded-pill" id="name" name="name" placeholder="e.g. Basic Plan">
+      </div>
+      <div class="mb-3 col-md-6">
+        <label for="duration" class="form-label">Duration</label>
+        <select class="form-select rounded-pill" id="duration" name="duration" required>
+          <option selected disabled>Select duration</option>
+          <option value="3 minutes">3 minutes</option>
+          <option value="15 minutes">15 minutes</option>
+          <option value="30 minutes">30 minutes</option>
+          <option value="45 minutes">45 minutes</option>
+          <option value="1 hour">1 hour</option>
+          <option value="1 hour 30 minutes">1 hour 30 minutes</option>
+          <option value="2 hours">2 hours</option>
+          <option value="3 hours">3 hours</option>
+          <option value="4 hours">4 hours</option>
+          <option value="1 day">1 day</option>
+          <option value="1 week">1 week</option>
+          <option value="1 month">1 month</option>
+          <option value="3 months">3 months</option>
+          <option value="6 months">6 months</option>
+          <option value="1 year">1 year</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Upload Speed and Download Speed -->
+    <div class="row">
+      <div class="mb-3 col-md-6">
+        <label for="upload_speed" class="form-label">Upload Speed</label>
+        <input type="number" class="form-control rounded-pill" id="upload_speed" name="upload_speed" placeholder="e.g. 10 Mbps">
+      </div>
+      <div class="mb-3 col-md-6">
+        <label for="download_speed" class="form-label">Download Speed</label>
+        <input type="number" class="form-control rounded-pill" id="download_speed" name="download_speed" placeholder="e.g. 20 Mbps">
+      </div>
+    </div>
+
+    <!-- Price and Devices -->
+    <div class="row">
+      <div class="mb-3 col-md-6">
+        <label for="price" class="form-label">Price</label>
+        <input type="number" class="form-control rounded-pill" id="price" name="price" placeholder="Ksh">
+      </div>
+      <div class="mb-3 col-md-6">
+        <label for="devices" class="form-label">Devices</label>
+        <input type="number" class="form-control rounded-pill" id="devices" name="devices" placeholder="e.g. 5 devices">
+      </div>
+    </div>
+
+    <!-- Enable Burst Switch -->
+    <div class="form-check form-switch mb-3">
+      <input class="form-check-input" type="checkbox" id="enable_burst" onchange="toggleBurstFields()">
+      <label class="form-check-label" for="enable_burst">Enable Burst</label>
+    </div>
+
+    <!-- Burst Fields (Hidden by default) -->
+    <div id="burst_fields" style="display: none;">
+      <div class="row">
+        <div class="mb-3 col-md-4">
+          <label for="burst_limit" class="form-label">Burst Limit</label>
+          <input type="number" class="form-control rounded-pill" id="burst_limit" name="burst_limit" placeholder="e.g. 50 Mbps">
+        </div>
+        <div class="mb-3 col-md-4">
+          <label for="burst_threshold" class="form-label">Burst Threshold</label>
+          <input type="number" class="form-control rounded-pill" id="burst_threshold" name="burst_threshold" placeholder="e.g. 70 Mbps">
+        </div>
+        <div class="mb-3 col-md-4">
+          <label for="burst_time" class="form-label">Burst Time</label>
+          <input type="text" class="form-control rounded-pill" id="burst_time" name="burst_time" placeholder="e.g. 15 minutes">
+        </div>
+      </div>
+    </div>
+
+    <!-- Enable Schedule Switch -->
+    <div class="form-check form-switch mb-3">
+      <input class="form-check-input" type="checkbox" id="enable_schedule" onchange="toggleScheduleFields()">
+      <label class="form-check-label" for="enable_schedule">Enable Schedule</label>
+    </div>
+
+    <!-- Schedule Fields (Hidden by default) -->
+    <div id="schedule_fields" style="display: none;">
+      <div class="row">
+        <div class="mb-3 col-md-6">
+          <label for="start_time" class="form-label">Start Time</label>
+          <input type="time" class="form-control rounded-pill" id="start_time" name="start_time">
+        </div>
+        <div class="mb-3 col-md-6">
+          <label for="end_time" class="form-label">End Time</label>
+          <input type="time" class="form-control rounded-pill" id="end_time" name="end_time">
+        </div>
+      </div>
+
+      <!-- Available Days -->
+      <h4>Available Days</h4>
+      <div class="row">
+        <div class="col-md-4">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="monday" name="days" value="Monday">
+            <label class="form-check-label" for="monday">Monday</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="wednesday" name="days" value="Wednesday">
+            <label class="form-check-label" for="wednesday">Wednesday</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="friday" name="days" value="Friday">
+            <label class="form-check-label" for="friday">Friday</label>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="tuesday" name="days" value="Tuesday">
+            <label class="form-check-label" for="tuesday">Tuesday</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="thursday" name="days" value="Thursday">
+            <label class="form-check-label" for="thursday">Thursday</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="saturday" name="days" value="Saturday">
+            <label class="form-check-label" for="saturday">Saturday</label>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="sunday" name="days" value="Sunday">
+            <label class="form-check-label" for="sunday">Sunday</label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Show Package to Clients Switch -->
+    <div class="form-check form-switch mb-3">
+      <input class="form-check-input" type="checkbox" id="show_to_clients" checked>
+      <label class="form-check-label" for="show_to_clients">Show Package to Clients</label>
+    </div>
+
+    <!-- Submit Button -->
+    <div class="text-end">
+      <button type="submit" class="btn btn-primary rounded-pill px-4">
+        <i class="bi bi-check-circle me-1"></i> Submit
+      </button>
+    </div>
+  </form>
+
+  <!-- Page Footer -->
+  <footer class="text-center mt-4 text-muted small">
+    &copy; {{ now.year }} Your Company Name. All rights reserved.
+  </footer>
+</div>
+
+<script>
+  function toggleBurstFields() {
+    const burstFields = document.getElementById('burst_fields');
+    burstFields.style.display = document.getElementById('enable_burst').checked ? 'block' : 'none';
+  }
+
+  function toggleScheduleFields() {
+    const scheduleFields = document.getElementById('schedule_fields');
+    scheduleFields.style.display = document.getElementById('enable_schedule').checked ? 'block' : 'none';
+  }
+</script>
+
+{% endblock %}
