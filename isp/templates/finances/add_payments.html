@@ -1,0 +1,95 @@
+{% extends 'master.html' %}
+
+{% block content %}
+<div class="container my-4 p-4 bg-light rounded-4 shadow-sm">
+  
+
+  <!-- Search and Settings Icon -->
+  <div class="d-flex justify-content-end align-items-center mb-3">
+    <div class="input-group rounded-pill w-auto border">
+      <span class="input-group-text bg-white border-0 rounded-start-pill">
+        <i class="bi bi-search"></i>
+      </span>
+      <input type="text" class="form-control border-0" placeholder="Search payments">
+    </div>
+    <button class="btn btn-outline-secondary ms-2 rounded-circle">
+      <i class="bi bi-gear-fill"></i>
+    </button>
+  </div>
+
+  <hr>
+
+  <!-- Page Header -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h4 class="mb-0">Record Payment</h4>
+      <p class="mb-0 text-muted">Fill in the details to record a new payment.</p>
+    </div>
+    <a href="{% url 'payments' %}" class="btn btn-secondary rounded-pill">
+      <i class="bi bi-arrow-left me-1"></i> Back to Payments
+    </a>
+  </div>
+
+  <!-- Form Starts -->
+  <form method="POST" class="bg-white rounded-4 shadow-sm p-4">
+    {% csrf_token %}
+
+    <!-- User Dropdown -->
+    <div class="mb-3">
+      <label for="user" class="form-label">User <span class="text-danger">*</span></label>
+      <select class="form-select rounded-pill" id="user" name="user" required>
+        <option selected disabled>Select user</option>
+        <option value="John Doe">John Doe</option>
+        <option value="Jane Smith">Jane Smith</option>
+        <option value="Michael Otieno">Michael Otieno</option>
+      </select>
+    </div>
+
+    <!-- Receipt No and Amount -->
+    <div class="row">
+      <div class="mb-3 col-md-6">
+        <label for="receipt_no" class="form-label">Receipt No. <span class="text-danger">*</span></label>
+        <input type="text" class="form-control rounded-pill" id="receipt_no" name="receipt_no" placeholder="e.g. RCPT123456" required>
+      </div>
+      <div class="mb-3 col-md-6">
+        <label for="amount" class="form-label">Amount <span class="text-danger">*</span></label>
+        <input type="number" class="form-control rounded-pill" id="amount" name="amount" placeholder="Ksh" required>
+      </div>
+    </div>
+
+    <!-- Payment Method and Checked Dropdowns -->
+    <div class="row">
+      <div class="mb-3 col-md-6">
+        <label for="payment_method" class="form-label">Payment Method <span class="text-danger">*</span></label>
+        <select class="form-select rounded-pill" id="payment_method" name="payment_method" required>
+          <option selected disabled>Select payment method</option>
+          <option value="Cash">Cash</option>
+          <option value="Mpesa">Mpesa</option>
+          <option value="Bank Transfer">Bank Transfer</option>
+          <option value="Card">Card</option>
+        </select>
+      </div>
+      <div class="mb-3 col-md-6">
+        <label for="checked" class="form-label">Checked <span class="text-danger">*</span></label>
+        <select class="form-select rounded-pill" id="checked" name="checked" required>
+          <option selected disabled>Has this payment been checked?</option>
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Submit Button -->
+    <div class="text-end">
+      <button type="submit" class="btn btn-primary rounded-pill px-4">
+        <i class="bi bi-cash-coin me-1"></i> Submit Payment
+      </button>
+    </div>
+  </form>
+
+  <!-- Page Footer -->
+  <footer class="text-center mt-4 text-muted small">
+    &copy; {{ now.year }} Your Company Name. All rights reserved.
+  </footer>
+</div>
+{% endblock %}

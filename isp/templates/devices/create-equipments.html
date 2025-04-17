@@ -35,7 +35,7 @@
 
 <!-- First full-width dropdown for user -->
 <div class="mb-3">
-    <label for="user" class="form-label">User</label>
+    <label for="user" class="form-label">User <span class="text-danger">*</span></label>
     <select class="form-select rounded-pill" id="user" name="user" required>
       <option selected disabled>Select user</option>
       <option value="John Doe">John Doe</option>
@@ -47,7 +47,7 @@
   <!-- Two inputs per row -->
   <div class="row">
     <div class="mb-3 col-md-6">
-      <label for="type" class="form-label">Equipment Type</label>
+      <label for="type" class="form-label">Equipment Type <span class="text-danger">*</span></label>
       <select class="form-select rounded-pill" id="type" name="type" required>
         <option selected disabled>Select equipment type</option>
         <option value="Generator">Generator</option>
@@ -59,7 +59,7 @@
       </select>
     </div>
     <div class="mb-3 col-md-6">
-      <label for="name" class="form-label">Equipment Name</label>
+      <label for="name" class="form-label">Equipment Name  <span class="text-danger">*</span></label>
       <input type="text" class="form-control rounded-pill" id="name" name="name" placeholder="e.g. Honda EU2200i">
     </div>
   </div>
@@ -67,11 +67,11 @@
 
     <div class="row">
       <div class="mb-3 col-md-6">
-        <label for="price" class="form-label">Price</label>
+        <label for="price" class="form-label">Price  <span class="text-danger">*</span></label>
         <input type="number" class="form-control rounded-pill" id="price" name="price" placeholder="Ksh">
       </div>
       <div class="mb-3 col-md-6">
-        <label for="paid" class="form-label">Paid</label>
+        <label for="paid" class="form-label">Paid  <span class="text-danger">*</span></label>
         <input type="number" class="form-control rounded-pill" id="paid" name="paid" placeholder="Ksh">
       </div>
     </div>

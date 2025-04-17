@@ -35,7 +35,7 @@
 
     <!-- Package Type Dropdown -->
     <div class="mb-3">
-      <label for="type" class="form-label">Package Type</label>
+      <label for="type" class="form-label">Package Type <span class="text-danger">*</span></label>
       <select class="form-select rounded-pill" id="type" name="type" required>
         <option selected disabled>Select package type</option>
         <option value="PPoE">PPoE</option>
@@ -46,11 +46,11 @@
     <!-- Package Name and Duration (Same row) -->
     <div class="row">
       <div class="mb-3 col-md-6">
-        <label for="name" class="form-label">Package Name</label>
+        <label for="name" class="form-label">Package Name <span class="text-danger">*</span></label>
         <input type="text" class="form-control rounded-pill" id="name" name="name" placeholder="e.g. Basic Plan">
       </div>
       <div class="mb-3 col-md-6">
-        <label for="duration" class="form-label">Duration</label>
+        <label for="duration" class="form-label">Duration <span class="text-danger">*</span></label>
         <select class="form-select rounded-pill" id="duration" name="duration" required>
           <option selected disabled>Select duration</option>
           <option value="3 minutes">3 minutes</option>
@@ -75,11 +75,11 @@
     <!-- Upload Speed and Download Speed -->
     <div class="row">
       <div class="mb-3 col-md-6">
-        <label for="upload_speed" class="form-label">Upload Speed</label>
+        <label for="upload_speed" class="form-label">Upload Speed <span class="text-danger">*</span></label>
         <input type="number" class="form-control rounded-pill" id="upload_speed" name="upload_speed" placeholder="e.g. 10 Mbps">
       </div>
       <div class="mb-3 col-md-6">
-        <label for="download_speed" class="form-label">Download Speed</label>
+        <label for="download_speed" class="form-label">Download Speed <span class="text-danger">*</span></label>
         <input type="number" class="form-control rounded-pill" id="download_speed" name="download_speed" placeholder="e.g. 20 Mbps">
       </div>
     </div>
@@ -87,11 +87,11 @@
     <!-- Price and Devices -->
     <div class="row">
       <div class="mb-3 col-md-6">
-        <label for="price" class="form-label">Price</label>
+        <label for="price" class="form-label">Price <span class="text-danger">*</span></label>
         <input type="number" class="form-control rounded-pill" id="price" name="price" placeholder="Ksh">
       </div>
       <div class="mb-3 col-md-6">
-        <label for="devices" class="form-label">Devices</label>
+        <label for="devices" class="form-label">Devices <span class="text-danger">*</span></label>
         <input type="number" class="form-control rounded-pill" id="devices" name="devices" placeholder="e.g. 5 devices">
       </div>
     </div>
@@ -106,15 +106,15 @@
     <div id="burst_fields" style="display: none;">
       <div class="row">
         <div class="mb-3 col-md-4">
-          <label for="burst_limit" class="form-label">Burst Limit</label>
+          <label for="burst_limit" class="form-label">Burst Limit <span class="text-danger">*</span></label>
           <input type="number" class="form-control rounded-pill" id="burst_limit" name="burst_limit" placeholder="e.g. 50 Mbps">
         </div>
         <div class="mb-3 col-md-4">
-          <label for="burst_threshold" class="form-label">Burst Threshold</label>
+          <label for="burst_threshold" class="form-label">Burst Threshold <span class="text-danger">*</span></label>
           <input type="number" class="form-control rounded-pill" id="burst_threshold" name="burst_threshold" placeholder="e.g. 70 Mbps">
         </div>
         <div class="mb-3 col-md-4">
-          <label for="burst_time" class="form-label">Burst Time</label>
+          <label for="burst_time" class="form-label">Burst Time <span class="text-danger">*</span></label>
           <input type="text" class="form-control rounded-pill" id="burst_time" name="burst_time" placeholder="e.g. 15 minutes">
         </div>
       </div>
@@ -130,17 +130,17 @@
     <div id="schedule_fields" style="display: none;">
       <div class="row">
         <div class="mb-3 col-md-6">
-          <label for="start_time" class="form-label">Start Time</label>
+          <label for="start_time" class="form-label">Start Time <span class="text-danger">*</span></label>
           <input type="time" class="form-control rounded-pill" id="start_time" name="start_time">
         </div>
         <div class="mb-3 col-md-6">
-          <label for="end_time" class="form-label">End Time</label>
+          <label for="end_time" class="form-label">End Time <span class="text-danger">*</span></label>
           <input type="time" class="form-control rounded-pill" id="end_time" name="end_time">
         </div>
       </div>
 
       <!-- Available Days -->
-      <h4>Available Days</h4>
+      <h4>Available Days <span class="text-danger">*</span></h4>
       <div class="row">
         <div class="col-md-4">
           <div class="form-check">

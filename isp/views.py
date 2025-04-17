@@ -26,9 +26,18 @@ def reports(request):
     return render(request, 'dashboard/reports.html')
 
 
-def add_clients(request):
+def vouchers(request):
     
-    return render(request, 'clients/add_client.html')
+    return render(request, 'finances/vouchers.html')
+
+def add_voucher(request):
+    
+    return render(request, 'finances/add_voucher.html')
+
+def add_voucher(request):
+    
+    return render(request, 'finances/add_voucher.html')
+
 
 def view_clients(request):
     
@@ -55,9 +64,13 @@ def view_plans(request):
     
     return render(request, 'finances/view_plans.html')
 
-def transactions(request):
+def all_users(request):
     
-    return render(request, 'finances/payments.html')
+    return render(request, 'users/users.html')
+
+def add_user(request):
+    
+    return render(request, 'users/add_user.html')
 
 def billings(request):
     
@@ -67,6 +80,10 @@ def billings(request):
 def expenses(request):
     
     return render(request, 'finances/expenses.html')
+
+def add_expense(request):
+    
+    return render(request, 'finances/add_expenses.html')
 
 def access(request):
     

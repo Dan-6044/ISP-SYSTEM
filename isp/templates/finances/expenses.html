@@ -1,0 +1,253 @@
+{% extends 'master.html' %}
+
+{% block content %}
+<style>
+
+    /* Table border and row separation */
+.table th, .table td {
+  border-top: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+}
+
+/* Method column styled as a card */
+.method-card {
+  background-color: #f8f9fa;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+/* Action menu positioning */
+.position-relative {
+  position: relative;
+}
+
+/* Hide the action menu by default */
+.action-menu {
+  position: absolute;
+  right: 0;
+  top: 30px;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  display: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+}
+
+.action-menu button {
+  border: none;
+  background: none;
+  padding: 8px 12px;
+  width: 100%;
+  text-align: left;
+}
+
+.action-menu button:hover {
+  background-color: #f8f9fa;
+}
+
+</style>
+<div class="container my-4 p-4 bg-light rounded-4 shadow-sm">
+  <div class="d-flex justify-content-end align-items-center mb-3">
+    <div class="input-group rounded-pill w-auto border">
+      <span class="input-group-text bg-white border-0 rounded-start-pill"><i class="bi bi-search"></i></span>
+      <input type="text" class="form-control border-0" placeholder="Search expenses" id="searchInputTop">
+    </div>
+    <button class="btn btn-outline-secondary ms-2 rounded-circle"><i class="bi bi-gear-fill"></i></button>
+  </div>
+
+  <hr>
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h4 class="mb-0">Expenses</h4>
+      <p class="mb-0 text-muted">Track and manage your expenses.</p>
+    </div>
+    <a href="{% url 'add_expense' %}" class="btn btn-primary rounded-pill">
+        <i class="bi bi-cash-stack me-1"></i> Add Expense
+
+    </a>
+  </div>
+
+  <div class="row mb-4">
+    <div class="col-md-4 mb-3">
+      <div class="card h-100 border-0 rounded-4 shadow" style="background-color: gold; color: black;">
+        <div class="card-body text-center">
+          <h6 class="text-uppercase fw-bold mb-2">Yearly Expense</h6>
+          <h3 class="fw-bold mb-0" id="yearlyExpense">Ksh.5000.00</h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 mb-3">
+      <div class="card h-100 border-0 rounded-4 shadow" style="background-color: gold; color: black;">
+        <div class="card-body text-center">
+          <h6 class="text-uppercase fw-bold mb-2">Monthly Expense</h6>
+          <h3 class="fw-bold mb-0" id="monthlyExpense">Ksh.1200.00</h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 mb-3">
+      <div class="card h-100 border-0 rounded-4 shadow" style="background-color: gold; color: black;">
+        <div class="card-body text-center">
+          <h6 class="text-uppercase fw-bold mb-2">Weekly Expense</h6>
+          <h3 class="fw-bold mb-0" id="weeklyExpense">Ksh.300.00</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+
+  <div class="table-responsive bg-white rounded-4 shadow-sm p-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div class="input-group rounded-pill w-auto border">
+        <span class="input-group-text bg-white border-0 rounded-start-pill">
+          <i class="bi bi-search"></i>
+        </span>
+        <input type="text" class="form-control border-0" placeholder="Search in table" id="searchInputTable">
+      </div>      
+    </div>
+
+    <table id="expensesTable" class="table align-middle table-borderless">
+      <thead class="table-light border-bottom">
+        <tr>
+          <th class="sortable" data-column="name">Type <i class="bi bi-chevron-expand"></i></th>
+          <th class="sortable" data-column="amount">Amount <i class="bi bi-chevron-expand"></i></th>
+          <th class="sortable" data-column="method">Payment Method <i class="bi bi-chevron-expand"></i></th>
+          <th class="sortable" data-column="date">Created At <i class="bi bi-chevron-expand"></i></th>
+          
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+      <tfoot>
+        <tr>
+          <td colspan="7">
+            <div class="d-flex justify-content-between align-items-center mt-3 border-top pt-3">
+              <div class="text-muted" id="resultCount">Showing 0 results</div>
+              <div class="d-flex align-items-center gap-3">
+                <label class="text-muted">Rows per page:</label>
+                <select class="form-select form-select-sm w-auto rounded-pill" id="rowsPerPage">
+                  <option>2</option>
+                  <option>5</option>
+                  <option selected>10</option>
+                </select>
+                <button class="btn btn-outline-secondary btn-sm rounded-pill" id="prevPageBtn">
+                  <i class="bi bi-chevron-left"></i>
+                </button>
+                <button class="btn btn-outline-secondary btn-sm rounded-pill" id="nextPageBtn">
+                  <i class="bi bi-chevron-right"></i>
+                </button>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <footer class="mt-4 text-center text-muted small">
+    &copy; {{ now.year }} Your Company Name. All rights reserved.
+  </footer>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const expenses = [
+      { type: "Fuel", amount: "Ksh.50", category: "Transport", date: "2025-04-15", method: "Cash" },
+      { type: "Groceries", amount: "Ksh.120", category: "Food", date: "2025-04-14", method: "Card" },
+      { type: "Internet", amount: "Ksh.30", category: "Utilities", date: "2025-04-13", method: "Mobile Money" },
+    ];
+
+    let currentPage = 1;
+    let rowsPerPage = 10;
+    let sortDirection = 'asc';
+    let sortedColumn = 'type';
+
+    function renderTable() {
+      const tableBody = document.getElementById("tableBody");
+      tableBody.innerHTML = "";
+
+      expenses.sort((a, b) => {
+        const valA = a[sortedColumn].toString().toLowerCase();
+        const valB = b[sortedColumn].toString().toLowerCase();
+        return sortDirection === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+      });
+
+      const start = (currentPage - 1) * rowsPerPage;
+      const end = start + rowsPerPage;
+      const paginated = expenses.slice(start, end);
+
+      document.getElementById("resultCount").textContent = `Showing ${start + 1}-${Math.min(end, expenses.length)} of ${expenses.length} results`;
+
+      paginated.forEach(exp => {
+        const row = document.createElement("tr");
+        row.innerHTML = `          
+          <td>${exp.type}</td>
+          <td>${exp.amount}</td>
+          <td><div class="method-card">${exp.method}</div></td>
+          <td>${exp.date}</td>
+          
+          <td class="position-relative">
+            <i class="bi bi-three-dots-vertical three-dots"></i>
+            <div class="action-menu">
+              <button class="text-danger"><i class="bi bi-trash"></i> Delete</button>
+              <button class="text-primary"><i class="bi bi-pencil-square"></i> Edit</button>
+            </div>
+          </td>
+        `;
+        tableBody.appendChild(row);
+      });
+    }
+
+    document.querySelectorAll(".sortable").forEach(header => {
+      header.addEventListener("click", function () {
+        const column = this.dataset.column;
+        sortDirection = sortedColumn === column && sortDirection === 'asc' ? 'desc' : 'asc';
+        sortedColumn = column;
+        renderTable();
+      });
+    });
+
+    document.getElementById("rowsPerPage").addEventListener("change", function () {
+      rowsPerPage = parseInt(this.value);
+      currentPage = 1;
+      renderTable();
+    });
+
+    document.getElementById("prevPageBtn").addEventListener("click", () => {
+      if (currentPage > 1) {
+        currentPage--;
+        renderTable();
+      }
+    });
+
+    document.getElementById("nextPageBtn").addEventListener("click", () => {
+      if ((currentPage * rowsPerPage) < expenses.length) {
+        currentPage++;
+        renderTable();
+      }
+    });
+
+    document.getElementById("tableBody").addEventListener("click", function (e) {
+      if (e.target.classList.contains("three-dots")) {
+        const menu = e.target.nextElementSibling;
+        menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        document.querySelectorAll(".action-menu").forEach(m => {
+          if (m !== menu) m.style.display = 'none';
+        });
+      }
+    });
+
+    document.addEventListener("click", function (e) {
+      if (!e.target.closest(".three-dots") && !e.target.closest(".action-menu")) {
+        document.querySelectorAll(".action-menu").forEach(menu => menu.style.display = 'none');
+      }
+    });
+
+    renderTable();
+  });
+</script>
+
+{% endblock %}

@@ -15,18 +15,22 @@ urlpatterns = [
       path('payments/', views.payments, name='payments'),
       path('add-payments/', views.add_payments, name='add_payments'),
       
-      path('vouchers/', views.add_clients, name='vouchers'),
-      path('expenses/', views.view_clients, name='expenses'),
+      path('vouchers/', views.vouchers, name='vouchers'),
+      path('add_voucher/', views.add_voucher, name='add_voucher'),
+      
+      path('expenses/', views.expenses, name='expenses'),
+      path('add_expense/', views.add_expense, name='add_expense'),
       
       
       path('dashboard/', views.dashboard, name='dashboard'),
       path('active_users/', views.reports, name='active_users'),
-      path('all_users/', views.transactions, name='all_users'),
+      path('all_users/', views.all_users, name='all_users'),
+      path('add_user/', views.add_user, name='add_user'),
       
       
       path('sms/', views.sms, name='sms'),
       path('send_sms/', views.send_sms, name='send_sms'),
-      path('campaigns/', views.access, name='campaigns'),
+      path('expiry_dates/', views.access, name='expiry_dates'),
       path('profile/', views.profile, name='profile'),
 
      

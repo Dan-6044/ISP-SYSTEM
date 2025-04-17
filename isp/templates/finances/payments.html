@@ -68,7 +68,10 @@
         <h4 class="mb-0">Packages</h4>
         <p class="mb-0 text-muted">Manage internet packages.</p>
       </div>
-      <a href="{% url 'add_payments' %}" class="btn btn-primary rounded-pill"><i class="bi bi-plus-circle me-1"></i> Add Package</a>
+      <a href="{% url 'add_payments' %}" class="btn btn-primary rounded-pill">
+        <i class="bi bi-coin me-1"></i> Record Payments
+      </a>
+      
     </div>
 
   <!-- Tabs -->
@@ -138,6 +141,9 @@
       </tfoot>
     </table>
   </div>
+  <footer class="mt-4 text-center text-muted small">
+    &copy; {{ now.year }} Your Company Name. All rights reserved.
+  </footer>
 </div>
 
 <script>

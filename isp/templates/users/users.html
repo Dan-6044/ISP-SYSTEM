@@ -1,0 +1,380 @@
+{% extends 'master.html' %}
+
+
+{% block content %}
+
+<style>
+  .tab-header {
+    font-weight: 600;
+    cursor: pointer;
+    position: relative;
+    padding-bottom: 6px;
+  }
+  .tab-header.active {
+    color: goldenrod;
+    border-bottom: 3px solid goldenrod;
+  }
+  .tab-header .badge {
+    background-color: goldenrod;
+    color: white;
+    font-size: 0.75rem;
+    margin-left: 5px;
+  }
+  .three-dots {
+    cursor: pointer;
+  }
+  .action-menu {
+    position: absolute;
+    right: 10px;
+    top: 30px;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    display: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+  }
+  .action-menu button {
+    border: none;
+    background: none;
+    padding: 8px 12px;
+    width: 100%;
+    text-align: left;
+  }
+  .action-menu button:hover {
+    background-color: #f8f9fa;
+  }
+  .sortable {
+    cursor: pointer;
+  }
+  .sortable .up_down_icon {
+    margin-left: 5px;
+    font-size: 0.8rem;
+  }
+  .bulk-action {
+    display: none;
+  }
+</style>
+
+<div class="container my-4 p-4 bg-light rounded-4 shadow-sm">
+  <div class="d-flex justify-content-end align-items-center mb-3">
+    <div class="input-group rounded-pill w-auto border">
+      <span class="input-group-text bg-white border-0 rounded-start-pill"><i class="bi bi-search"></i></span>
+      <input type="text" class="form-control border-0" placeholder="Search packages" id="searchInputTop">
+    </div>
+    <button class="btn btn-outline-secondary ms-2 rounded-circle"><i class="bi bi-gear-fill"></i></button>
+  </div>
+
+  <hr>
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h4 class="mb-0">Users</h4>
+      <p class="mb-0 text-muted">Manage Your Users.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <!-- Add User Button -->
+        <a href="{% url 'add_user' %}" class="btn rounded-pill text-white" style="background-color: #d4ac0d;">
+          <i class="bi bi-person-plus-fill me-1"></i> Add User
+        </a>
+      
+        <!-- Import Users Dropdown Button -->
+        <div class="dropdown">
+          <button class="btn rounded-pill text-white dropdown-toggle" style="background-color: #d4ac0d;" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-box-arrow-in-down me-1"></i> Import Users
+          </button>
+          <ul class="dropdown-menu">
+            <li>
+              <a class="dropdown-item" href="#">
+                <i class="bi bi-file-earmark-excel text-success me-2"></i> Import from Excel
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="#">
+                <i class="bi bi-hdd-network text-primary me-2"></i> Import from Mikrotik
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      
+    
+    
+  </div>
+
+  <!-- Tabs -->
+  <div class="d-flex gap-4 border-bottom pb-2 mb-3">
+    <div class="tab-header active" data-target="all">
+      <i class="bi bi-layers"></i> All <span class="badge">3</span>
+    </div>
+    <div class="tab-header" data-target="hotspot">
+      <i class="bi bi-wifi"></i> Hotspots <span class="badge">1</span>
+    </div>
+    <div class="tab-header" data-target="pppoe">
+      <i class="bi bi-plug"></i> PPPoE <span class="badge">2</span>
+    </div>
+  </div>
+
+  <div class="table-responsive bg-white rounded-4 shadow-sm p-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div class="input-group rounded-pill w-auto border">
+        <span class="input-group-text bg-white border-0 rounded-start-pill">
+          <i class="bi bi-search"></i>
+        </span>
+        <input type="text" class="form-control border-0" placeholder="Search in table" id="searchInputTable">
+      </div>
+
+      <!-- Bulk Action Dropdown -->
+<div id="bulk-action-container" class="d-none">
+    <div class="dropdown">
+        <button class="btn btn-outline-warning dropdown-toggle" type="button" id="bulk-action-btn" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-gear-fill me-1"></i> Bulk Actions
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="bulk-action-btn">
+            <li>
+                <a class="dropdown-item" href="#" id="send-sms">
+                    <i class="bi bi-chat-dots me-2 text-primary"></i> Send SMS
+                </a>
+            </li>
+            <li>
+                <a class="dropdown-item" href="#" id="change-package">
+                    <i class="bi bi-arrow-repeat me-2 text-info"></i> Change Package
+                </a>
+            </li>
+            <li>
+                <a class="dropdown-item" href="#" id="export-selected">
+                    <i class="bi bi-download me-2 text-success"></i> Export Selected
+                </a>
+            </li>
+            <li>
+                <a class="dropdown-item text-danger" href="#" id="delete-selected">
+                    <i class="bi bi-trash me-2"></i> Delete Selected
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>          
+    </div>
+
+    <table id="packagesTable" class="table align-middle table-borderless">
+      <thead class="table-light border-bottom">
+        <tr>
+          <th><input type="checkbox" id="checkAll"></th>
+          <th class="sortable" data-column="name">UserName <i class="bi bi-chevron-expand"></i></th>
+          <th class="sortable" data-column="phone">Phone <i class="bi bi-chevron-expand"></i></th>
+          <th class="sortable" data-column="package">Package <i class="bi bi-chevron-expand"></i></th>
+          <th class="sortable" data-column="expiry">Expiry <i class="bi bi-chevron-expand"></i></th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+      <tfoot>
+        <tr>
+          <td colspan="9">
+            <div class="d-flex justify-content-between align-items-center mt-3 border-top pt-3">
+              <div class="text-muted" id="resultCount">Showing 0 results</div>
+              <div class="d-flex align-items-center gap-3">
+                <label class="text-muted">Rows per page:</label>
+                <select class="form-select form-select-sm w-auto rounded-pill" id="rowsPerPage">
+                  <option>2</option>
+                  <option>5</option>
+                  <option selected>10</option>
+                </select>
+                <button class="btn btn-outline-secondary btn-sm rounded-pill" id="prevPageBtn">
+                  <i class="bi bi-chevron-left"></i>
+                </button>
+                <button class="btn btn-outline-secondary btn-sm rounded-pill" id="nextPageBtn">
+                  <i class="bi bi-chevron-right"></i>
+                </button>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+  <footer class="mt-4 text-center text-muted small">
+    &copy; {{ now.year }} Your Company Name. All rights reserved.
+  </footer>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const packages = [
+        { name: "Gold Plan", phone: "0726353322", package: "50 Mbps", expiry: "Expired", type: "PPPoE", devices: "2", enabled: true },
+        { name: "Hotspot Pro", phone: "0795734324", package: "10 Mbps", expiry: "not expired", type: "Hotspot", devices: "Unlimited", enabled: false },
+        { name: "Silver Plan", phone: "0111283834", package: "20 Mbps", expiry: "Expired", type: "PPPoE", devices: "3", enabled: true },
+      ];
+  
+      let currentPage = 1;
+      let rowsPerPage = 10;
+      let sortDirection = 'asc';
+      let sortedColumn = 'name';
+  
+      // Function to toggle the bulk action button visibility based on checked checkboxes
+      function toggleBulkActionButton() {
+        const checkboxes = document.querySelectorAll(".row-checkbox");
+        const bulkActionBtnContainer = document.getElementById("bulk-action-container");
+        const anyChecked = Array.from(checkboxes).some(cb => cb.checked);
+        if (anyChecked) {
+          bulkActionBtnContainer.classList.remove("d-none");
+        } else {
+          bulkActionBtnContainer.classList.add("d-none");
+        }
+      }
+  
+      // Function to set up listeners for checkboxes (including "Check All")
+      function setupCheckboxListeners() {
+        const checkAll = document.getElementById("checkAll");
+  
+        // "Check All" functionality
+        checkAll.addEventListener("change", function () {
+          const checkboxes = document.querySelectorAll(".row-checkbox");
+          checkboxes.forEach(cb => cb.checked = this.checked);
+          toggleBulkActionButton();
+        });
+  
+        // Delegate "change" event to dynamically added checkboxes
+        document.getElementById("tableBody").addEventListener("change", function (e) {
+          if (e.target.classList.contains("row-checkbox")) {
+            const checkboxes = document.querySelectorAll(".row-checkbox");
+            checkAll.checked = Array.from(checkboxes).every(cb => cb.checked);
+            toggleBulkActionButton();
+          }
+        });
+  
+        toggleBulkActionButton(); // Initial check to hide or show bulk button
+      }
+  
+      // Function to render the table rows
+      function renderTable() {
+        const tableBody = document.getElementById("tableBody");
+        tableBody.innerHTML = "";
+  
+        const activeTab = document.querySelector(".tab-header.active").dataset.target;
+        const filtered = packages.filter(pkg => activeTab === 'all' || pkg.type.toLowerCase() === activeTab);
+  
+        filtered.sort((a, b) => {
+          if (sortDirection === 'asc') {
+            return a[sortedColumn] > b[sortedColumn] ? 1 : -1;
+          } else {
+            return a[sortedColumn] < b[sortedColumn] ? 1 : -1;
+          }
+        });
+  
+        const start = (currentPage - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+        const paginated = filtered.slice(start, end);
+  
+        document.getElementById("resultCount").textContent = `Showing ${start + 1}-${Math.min(end, filtered.length)} of ${filtered.length} results`;
+  
+        paginated.forEach(pkg => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+             <td><input type="checkbox" class="row-checkbox"></td>
+                <td>${pkg.name}</td>
+                <td>${pkg.phone}</td>
+                <td>
+                <span class="badge bg-info text-dark small">${pkg.package}</span>
+                </td>
+                <td>
+                <span class="badge" style="background-color: gold; color: black;">${pkg.expiry}</span>
+                </td>     
+                <td class="position-relative">
+                <i class="bi bi-three-dots-vertical three-dots"></i>
+                <div class="action-menu">
+                    <button class="text-danger"><i class="bi bi-trash"></i> Delete</button>
+                    <button class="text-primary"><i class="bi bi-pencil-square"></i> Edit</button>
+                </div>
+                </td>
+          `;
+          tableBody.appendChild(row);
+        });
+  
+        setupCheckboxListeners(); // Set up checkbox listeners after rows are rendered
+      }
+  
+      // Sorting functionality for table headers
+      document.querySelectorAll(".sortable").forEach(header => {
+        header.addEventListener("click", function () {
+          const column = this.dataset.column;
+          sortDirection = sortedColumn === column && sortDirection === 'asc' ? 'desc' : 'asc';
+          sortedColumn = column;
+          renderTable();
+        });
+      });
+  
+      // Tab functionality
+      document.querySelectorAll(".tab-header").forEach(tab => {
+        tab.addEventListener("click", function () {
+          document.querySelectorAll(".tab-header").forEach(t => t.classList.remove("active"));
+          this.classList.add("active");
+          currentPage = 1;
+          renderTable();
+        });
+      });
+  
+      // Action menu toggle functionality
+      document.getElementById("tableBody").addEventListener("click", function (e) {
+        if (e.target.classList.contains("three-dots")) {
+          const menu = e.target.nextElementSibling;
+          menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+          document.querySelectorAll(".action-menu").forEach(m => {
+            if (m !== menu) m.style.display = 'none';
+          });
+        }
+      });
+  
+      // Close action menu if clicked outside
+      document.addEventListener("click", function (e) {
+        if (!e.target.closest(".three-dots") && !e.target.closest(".action-menu")) {
+          document.querySelectorAll(".action-menu").forEach(menu => menu.style.display = 'none');
+        }
+      });
+  
+      // Pagination controls
+      document.getElementById("rowsPerPage").addEventListener("change", function () {
+        rowsPerPage = parseInt(this.value);
+        currentPage = 1;
+        renderTable();
+      });
+  
+      document.getElementById("prevPageBtn").addEventListener("click", () => {
+        if (currentPage > 1) {
+          currentPage--;
+          renderTable();
+        }
+      });
+  
+      document.getElementById("nextPageBtn").addEventListener("click", () => {
+        currentPage++;
+        renderTable();
+      });
+  
+      // Bulk action event listeners
+      document.getElementById("send-sms").addEventListener("click", function () {
+        // Implement Send SMS functionality
+        alert("Send SMS action triggered.");
+      });
+  
+      document.getElementById("change-package").addEventListener("click", function () {
+        // Implement Change Package functionality
+        alert("Change Package action triggered.");
+      });
+  
+      document.getElementById("export-selected").addEventListener("click", function () {
+        // Implement Export Selected functionality
+        alert("Export Selected action triggered.");
+      });
+  
+      document.getElementById("delete-selected").addEventListener("click", function () {
+        // Implement Delete Selected functionality
+        alert("Delete Selected action triggered.");
+      });
+  
+      renderTable(); // Initial render
+    });
+  </script>
+  
+
+{% endblock %}

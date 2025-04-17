@@ -1,0 +1,251 @@
+{% extends 'master.html' %}
+
+{% block content %}
+
+<style>
+  .tab-header {
+    font-weight: 600;
+    cursor: pointer;
+    position: relative;
+    padding-bottom: 6px;
+  }
+  .tab-header.active {
+    color: teal;
+    border-bottom: 3px solid teal;
+  }
+  .tab-header .badge {
+    background-color: teal;
+    color: white;
+    font-size: 0.75rem;
+    margin-left: 5px;
+  }
+  .three-dots {
+    cursor: pointer;
+  }
+  .action-menu {
+    position: absolute;
+    right: 10px;
+    top: 30px;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    display: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+  }
+  .action-menu button {
+    border: none;
+    background: none;
+    padding: 8px 12px;
+    width: 100%;
+    text-align: left;
+  }
+  .action-menu button:hover {
+    background-color: #f8f9fa;
+  }
+  .sortable {
+    cursor: pointer;
+  }
+  .bulk-action {
+    display: none;
+  }
+</style>
+
+<div class="container my-4 p-4 bg-light rounded-4 shadow-sm">
+    <div class="d-flex justify-content-end align-items-center mb-3">
+        <div class="input-group rounded-pill w-auto border">
+          <span class="input-group-text bg-white border-0 rounded-start-pill"><i class="bi bi-search"></i></span>
+          <input type="text" class="form-control border-0" placeholder="Search payments" id="searchInputTop">
+        </div>
+        <button class="btn btn-outline-secondary ms-2 rounded-circle"><i class="bi bi-gear-fill"></i></button>
+      </div>
+    
+      <hr>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h4 class="mb-0">Vouchers</h4>
+      <p class="mb-0 text-muted">Manage your vouchers.</p>
+    </div>
+    <a href="{% url 'add_voucher' %}" class="btn btn-success rounded-pill">
+        <i class="bi bi-gift-fill me-1"></i> Create Voucher
+      </a>
+     
+  </div>
+
+  <div class="d-flex gap-4 border-bottom pb-2 mb-3">
+    <div class="tab-header active" data-target="used">Used <span class="badge">2</span></div>
+    <div class="tab-header" data-target="unused">Unused <span class="badge">2</span></div>
+  </div>
+
+  <div class="table-responsive bg-white rounded-4 shadow-sm p-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div class="input-group rounded-pill w-auto border">
+        <span class="input-group-text bg-white border-0 rounded-start-pill">
+          <i class="bi bi-search"></i>
+        </span>
+        <input type="text" class="form-control border-0" placeholder="Search in table" id="searchInputTable">
+      </div>
+
+      <div class="bulk-action">
+        <button class="btn btn-outline-warning dropdown-toggle" data-bs-toggle="dropdown">
+          Bulk Actions
+        </button>
+        <ul class="dropdown-menu">
+          <li><a class="dropdown-item" href="#">Print Vouchers</a></li>
+          <li><a class="dropdown-item" href="#">Export Selected</a></li>
+          <li><a class="dropdown-item text-danger" href="#">Delete Selected</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <table id="vouchersTable" class="table align-middle table-borderless">
+      <thead class="table-light border-bottom">
+        <tr>
+          <th><input type="checkbox" id="checkAll"></th>
+          <th class="sortable" data-column="code">Voucher Code <i class="bi bi-chevron-expand"></i></th>
+          <th class="sortable" data-column="package">Package <i class="bi bi-chevron-expand"></i></th>
+          <th class="sortable" data-column="used">Used <i class="bi bi-chevron-expand"></i></th>
+          <th class="sortable" data-column="used_by">Used By <i class="bi bi-chevron-expand"></i></th>
+          <th class="sortable" data-column="used_at">Used At <i class="bi bi-chevron-expand"></i></th>
+          <th class="sortable" data-column="created_at">Created At <i class="bi bi-chevron-expand"></i></th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+      <tfoot>
+        <tr>
+          <td colspan="8">
+            <div class="d-flex justify-content-between align-items-center mt-3 border-top pt-3">
+              <div class="text-muted" id="resultCount">Showing 0 results</div>
+              <div class="d-flex align-items-center gap-3">
+                <label class="text-muted">Rows per page:</label>
+                <select class="form-select form-select-sm w-auto rounded-pill" id="rowsPerPage">
+                  <option>2</option>
+                  <option>5</option>
+                  <option selected>10</option>
+                </select>
+                <button class="btn btn-outline-secondary btn-sm rounded-pill" id="prevPageBtn">
+                  <i class="bi bi-chevron-left"></i>
+                </button>
+                <button class="btn btn-outline-secondary btn-sm rounded-pill" id="nextPageBtn">
+                  <i class="bi bi-chevron-right"></i>
+                </button>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+  <footer class="mt-4 text-center text-muted small">
+    &copy; {{ now.year }} Your Company Name. All rights reserved.
+  </footer>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const vouchers = [
+      { code: "VCHR001", package: "Gold", used: true, used_by: "John Doe", used_at: "2025-04-01", created_at: "2025-03-20" },
+      { code: "VCHR002", package: "Silver", used: true, used_by: "Jane Smith", used_at: "2025-04-03", created_at: "2025-03-22" },
+      { code: "VCHR003", package: "Bronze", used: false, used_by: "", used_at: "", created_at: "2025-03-25" },
+      { code: "VCHR004", package: "Platinum", used: false, used_by: "", used_at: "", created_at: "2025-03-28" }
+    ];
+
+    let currentPage = 1;
+    let rowsPerPage = 10;
+    let sortDirection = 'asc';
+    let sortedColumn = 'code';
+
+    const tableBody = document.getElementById("tableBody");
+    const checkAll = document.getElementById("checkAll");
+    const bulkAction = document.querySelector(".bulk-action");
+
+    function renderTable() {
+      tableBody.innerHTML = "";
+      const activeTab = document.querySelector(".tab-header.active").dataset.target;
+      const filtered = vouchers.filter(v => activeTab === 'used' ? v.used : !v.used);
+
+      filtered.sort((a, b) => {
+        const aVal = a[sortedColumn];
+        const bVal = b[sortedColumn];
+        return sortDirection === 'asc' ? (aVal > bVal ? 1 : -1) : (aVal < bVal ? 1 : -1);
+      });
+
+      filtered.forEach(voucher => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td><input type="checkbox" class="row-checkbox"></td>
+          <td>${voucher.code}</td>
+          <td>${voucher.package}</td>
+          <td><span class="badge bg-${voucher.used ? 'success' : 'secondary'}">${voucher.used ? 'Yes' : 'No'}</span></td>
+          <td>${voucher.used_by || '-'}</td>
+          <td>${voucher.used_at || '-'}</td>
+          <td>${voucher.created_at}</td>
+          <td class="position-relative">
+            <i class="bi bi-printer me-2"></i>
+            <i class="bi bi-three-dots-vertical three-dots"></i>
+            <div class="action-menu">
+              <button><i class="bi bi-eye"></i> View</button>
+              <button class="text-danger"><i class="bi bi-trash"></i> Delete</button>
+            </div>
+          </td>
+        `;
+        tableBody.appendChild(row);
+      });
+
+      setupCheckboxEvents();
+      setupActionMenus();
+    }
+
+    function setupCheckboxEvents() {
+      const rowCheckboxes = document.querySelectorAll(".row-checkbox");
+      checkAll.checked = false;
+      rowCheckboxes.forEach(cb => cb.addEventListener("change", updateBulkActions));
+      checkAll.addEventListener("change", () => {
+        rowCheckboxes.forEach(cb => cb.checked = checkAll.checked);
+        updateBulkActions();
+      });
+    }
+
+    function updateBulkActions() {
+      const anyChecked = Array.from(document.querySelectorAll(".row-checkbox")).some(cb => cb.checked);
+      bulkAction.style.display = anyChecked ? 'block' : 'none';
+    }
+
+    function setupActionMenus() {
+      document.querySelectorAll(".three-dots").forEach(dot => {
+        dot.addEventListener("click", function (e) {
+          e.stopPropagation();
+          const menu = this.nextElementSibling;
+          document.querySelectorAll(".action-menu").forEach(m => m.style.display = 'none');
+          menu.style.display = 'block';
+        });
+      });
+
+      document.addEventListener("click", function () {
+        document.querySelectorAll(".action-menu").forEach(m => m.style.display = 'none');
+      });
+    }
+
+    document.querySelectorAll(".tab-header").forEach(tab => {
+      tab.addEventListener("click", function () {
+        document.querySelectorAll(".tab-header").forEach(t => t.classList.remove("active"));
+        this.classList.add("active");
+        renderTable();
+      });
+    });
+
+    document.querySelectorAll(".sortable").forEach(header => {
+      header.addEventListener("click", function () {
+        const column = this.dataset.column;
+        sortDirection = sortedColumn === column && sortDirection === 'asc' ? 'desc' : 'asc';
+        sortedColumn = column;
+        renderTable();
+      });
+    });
+
+    renderTable();
+  });
+</script>
+
+{% endblock %}
