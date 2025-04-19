@@ -5,7 +5,8 @@ from . import views
 
 
 urlpatterns = [ 
-      path('mikrotiks/', views.add_mikrotik, name='mikrotiks'),
+      path('mikrotiks/', views.mikrotik, name='mikrotiks'),
+      path('add_mikrotik/', views.add_mikrotik, name='add_mikrotik'),
       path('view_mikrotik/', views.view_mikrotik, name='view_mikrotik'),
       path('equipment/', views.equipments, name='equipment'),
       path('create-equipment/', views.create_equipments, name='create-equipment'),

@@ -1,6 +1,10 @@
 from django.shortcuts import render
 
 
+def mikrotik(request):
+    
+    return render(request, 'devices/mikrotik.html')
+
 def add_mikrotik(request):
     
     return render(request, 'devices/add_mikrotik.html')

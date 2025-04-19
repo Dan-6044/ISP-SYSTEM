@@ -1,0 +1,179 @@
+{% extends 'master.html' %}
+
+{% block content %}
+
+<style>
+  .tab-header {
+    font-weight: 600;
+    cursor: pointer;
+    position: relative;
+    padding-bottom: 6px;
+  }
+  .tab-header.active {
+    color: goldenrod;
+    border-bottom: 3px solid goldenrod;
+  }
+  .tab-header .badge {
+    background-color: goldenrod;
+    color: white;
+    font-size: 0.75rem;
+    margin-left: 5px;
+  }
+  .three-dots {
+    cursor: pointer;
+  }
+  .action-menu {
+    position: absolute;
+    right: 10px;
+    top: 30px;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    display: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+  }
+  .action-menu button {
+    border: none;
+    background: none;
+    padding: 8px 12px;
+    width: 100%;
+    text-align: left;
+  }
+  .action-menu button:hover {
+    background-color: #f8f9fa;
+  }
+  .sortable {
+    cursor: pointer;
+  }
+</style>
+
+<div class="container my-4 p-4 bg-light rounded-4 shadow-sm">
+  <div class="d-flex justify-content-end align-items-center mb-3">
+    <div class="input-group rounded-pill w-auto border">
+      <span class="input-group-text bg-white border-0 rounded-start-pill"><i class="bi bi-search"></i></span>
+      <input type="text" class="form-control border-0" placeholder="Search Mikrotiks" id="searchInputTop">
+    </div>
+    <button class="btn btn-outline-secondary ms-2 rounded-circle"><i class="bi bi-gear-fill"></i></button>
+  </div>
+
+  <hr>
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h4 class="mb-0">Mikrotiks</h4>
+      <p class="mb-0 text-muted">Manage your Mikrotik devices.</p>
+    </div>
+    <a href="{% url 'add_mikrotik' %}" class="btn btn-primary rounded-pill">
+      <i class="bi bi-hdd-network me-1"></i>Link Mikrotik
+    </a>
+  </div>
+
+  <!-- Tabs -->
+  <div class="d-flex gap-4 border-bottom pb-2 mb-3">
+    <div class="tab-header active" data-target="all">
+      <i class="bi bi-layers"></i> All <span class="badge">3</span>
+    </div>
+    <div class="tab-header" data-target="online">
+      <i class="bi bi-wifi"></i> Online <span class="badge">2</span>
+    </div>
+    <div class="tab-header" data-target="offline">
+      <i class="bi bi-wifi-off"></i> Offline <span class="badge">1</span>
+    </div>
+  </div>
+
+  <div class="table-responsive bg-white rounded-4 shadow-sm p-3">
+    <table class="table align-middle table-borderless">
+      <thead class="table-light border-bottom">
+        <tr>
+          <th>Name</th>
+          <th>Provisioning</th>
+          <th>CPU</th>
+          <th>Memory</th>
+          <th>Status</th>
+          <th>Remote Winbox</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="mikrotikTableBody">
+        <!-- Rows rendered via JavaScript -->
+      </tbody>
+    </table>
+  </div>
+
+  <footer class="mt-4 text-center text-muted small">
+    &copy; {{ now.year }} Your Company Name. All rights reserved.
+  </footer>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const mikrotiks = [
+      { name: "Mikrotik HQ", provisioning: "Yes", cpu: "34%", memory: "65%", status: "online", winbox: true },
+      { name: "Mikrotik Branch 1", provisioning: "Pending", cpu: "12%", memory: "45%", status: "offline", winbox: false },
+      { name: "Mikrotik Branch 2", provisioning: "Yes", cpu: "50%", memory: "70%", status: "online", winbox: true },
+    ];
+
+    const renderTable = () => {
+      const tbody = document.getElementById("mikrotikTableBody");
+      const activeTab = document.querySelector(".tab-header.active").dataset.target;
+      tbody.innerHTML = "";
+
+      const filtered = mikrotiks.filter(m =>
+        activeTab === "all" || m.status === activeTab
+      );
+
+      filtered.forEach(mikro => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${mikro.name}</td>
+          <td>${mikro.provisioning}</td>
+          <td>${mikro.cpu}</td>
+          <td>${mikro.memory}</td>
+          <td>
+            <span class="badge bg-${mikro.status === 'online' ? 'success' : 'secondary'}">${mikro.status}</span>
+          </td>
+          <td>
+            ${mikro.winbox ? '<a href="#" class="btn btn-sm btn-outline-primary rounded-pill">Connect</a>' : '<span class="text-muted">Unavailable</span>'}
+          </td>
+          <td class="position-relative">
+            <i class="bi bi-three-dots-vertical three-dots"></i>
+            <div class="action-menu">
+              <button class="text-primary"><i class="bi bi-gear"></i> Provision</button>
+              <button class="text-danger"><i class="bi bi-trash"></i> Delete</button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    };
+
+    document.querySelectorAll(".tab-header").forEach(tab => {
+      tab.addEventListener("click", function () {
+        document.querySelectorAll(".tab-header").forEach(t => t.classList.remove("active"));
+        this.classList.add("active");
+        renderTable();
+      });
+    });
+
+    document.getElementById("mikrotikTableBody").addEventListener("click", function (e) {
+      if (e.target.classList.contains("three-dots")) {
+        const menu = e.target.nextElementSibling;
+        menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        document.querySelectorAll(".action-menu").forEach(m => {
+          if (m !== menu) m.style.display = 'none';
+        });
+      }
+    });
+
+    document.addEventListener("click", function (e) {
+      if (!e.target.closest(".three-dots") && !e.target.closest(".action-menu")) {
+        document.querySelectorAll(".action-menu").forEach(menu => menu.style.display = 'none');
+      }
+    });
+
+    renderTable();
+  });
+</script>
+
+{% endblock %}

@@ -1,68 +1,241 @@
 {% extends 'master.html' %}
-{% load static %}
-
-{% block title %}Mikrotiks{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'css/dash.css' %}">
+<div class="container my-4 p-4 bg-light rounded-4 shadow-sm">
 
-<div class="full-page-wrapper">
-    <div class="form-container">
-        <h2 class="form-heading">Add MikroTik Router</h2>
-        <form action="{% url 'mikrotiks' %}" method="POST">
-            {% csrf_token %}
-
-            <div class="row">
-                <div class="form-group col-md-6">
-                    <label for="router_id" class="form-label">Router ID / Code</label>
-                    <input type="text" class="form-control" id="router_id" name="router_id" placeholder="e.g. MT001 or Kamkunji001" required>
-                </div>
-                <div class="form-group col-md-6">
-                    <label for="router_name" class="form-label">Router Name</label>
-                    <input type="text" class="form-control" id="router_name" name="router_name" placeholder="e.g. Kamkunji Main Router" required>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="form-group col-md-6">
-                    <label for="ip_address" class="form-label">IP Address</label>
-                    <input type="text" class="form-control" id="ip_address" name="ip_address" placeholder="e.g. 192.168.88.1" required>
-                </div>
-                <div class="form-group col-md-6">
-                    <label for="api_port" class="form-label">API Port</label>
-                    <input type="number" class="form-control" id="api_port" name="api_port" placeholder="Default is 8728" required>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="form-group col-md-6">
-                    <label for="username" class="form-label">Router Username</label>
-                    <input type="text" class="form-control" id="username" name="username" placeholder="e.g. admin" required>
-                </div>
-                <div class="form-group col-md-6">
-                    <label for="password" class="form-label">Router Password</label>
-                    <input type="password" class="form-control" id="password" name="password" placeholder="Enter router password" required>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="form-group col-md-6">
-                    <label for="location" class="form-label">Location</label>
-                    <input type="text" class="form-control" id="location" name="location" placeholder="e.g., Kamkunji, Nairobi, Kenya" required>
-                </div>
-                <div class="form-group col-md-6">
-                    <label for="status" class="form-label">Status</label>
-                    <select class="form-select" id="status" name="status" required>
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="form-footer mt-4">
-                <button type="submit" class="btn btn-primary w-100">Add MikroTik Router</button>
-            </div>
-        </form>
+  <!-- Top Bar -->
+  <div class="d-flex justify-content-end align-items-center mb-3">
+    <div class="input-group rounded-pill w-auto border">
+      <span class="input-group-text bg-white border-0 rounded-start-pill">
+        <i class="bi bi-search"></i>
+      </span>
+      <input type="text" class="form-control border-0" placeholder="Search">
     </div>
+    <button class="btn btn-outline-secondary ms-2 rounded-circle">
+      <i class="bi bi-gear-fill"></i>
+    </button>
+  </div>
+
+  <hr>
+
+  <!-- Introduction -->
+  <div class="row mb-4 align-items-stretch" style="background-color: #f0f0f0;">
+    <div class="col-md-9 p-4 rounded-4">
+      <h2 class="mb-2">Device Configuration</h2>
+      <p class="text-muted mb-0">Follow these steps to connect your MikroTik to our billing system.</p>
+    </div>
+    <div class="col-md-3 d-flex justify-content-end align-items-center">
+      <a href="{% url 'mikrotiks' %}" class="btn btn-secondary rounded-pill">
+        <i class="bi bi-arrow-left me-1"></i> Back to MikroTik List
+      </a>
+    </div>
+  </div>
+
+  <!-- Step Indicators -->
+  <div class="row text-center mb-4">
+    <div class="col-md-4 mb-3">
+      <div class="d-flex flex-column align-items-center">
+        <div id="step-1-indicator" class="rounded-circle bg-secondary text-white d-flex justify-content-center align-items-center mb-2" style="width: 40px; height: 40px;">1</div>
+        <h5 class="mb-1">Register MikroTik</h5>
+        <p class="text-muted">Add the MikroTik name to initiate registration.</p>
+      </div>
+    </div>
+    <div class="col-md-4 mb-3">
+      <div class="d-flex flex-column align-items-center">
+        <div id="step-2-indicator" class="rounded-circle bg-light text-dark border d-flex justify-content-center align-items-center mb-2" style="width: 40px; height: 40px;">2</div>
+        <h5 class="mb-1">Provisioning</h5>
+        <p class="text-muted">Run generated commands on your MikroTik terminal.</p>
+      </div>
+    </div>
+    <div class="col-md-4 mb-3">
+      <div class="d-flex flex-column align-items-center">
+        <div id="step-3-indicator" class="rounded-circle bg-light text-dark border d-flex justify-content-center align-items-center mb-2" style="width: 40px; height: 40px;">3</div>
+        <h5 class="mb-1">Service Type</h5>
+        <p class="text-muted">Choose Hotspot or PPPoE for configuration.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step Content -->
+  <div class="row">
+    <div class="col">
+      <div id="step-container" class="bg-white rounded-4 shadow-sm p-4">
+
+        <!-- Step 1 -->
+        <div id="step-1-content">
+          <form id="step1-form">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="mikrotik_name" class="form-label">
+                MikroTik Name <span class="text-danger">*</span>
+              </label>
+              <input type="text" class="form-control rounded-pill" id="mikrotik_name" name="mikrotik_name" required>
+              <span class="text-muted small ms-1">This should be the system identity of the MikroTik router.</span>
+              <br>
+              <span id="mikrotik-name-error" class="text-danger small d-none">MikroTik name is required.</span>
+            </div>
+            <div class="text-end">
+              <button type="button" class="btn btn-primary rounded-pill px-4" onclick="validateAndProceedToProvisioning()">
+                Next Step
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Step 2 -->
+        <div id="step-2-content" style="display: none;">
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Provisioning Command</label>
+            <div class="bg-dark text-light p-3 rounded-3 position-relative">
+              <code id="provision-script">/system script add name=ISP-Provision policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive source="..."</code>
+              <button class="btn btn-sm btn-outline-light position-absolute top-0 end-0 m-2" onclick="copyToClipboard()">Copy</button>
+            </div>
+          </div>
+
+          <div class="bg-black text-white p-2 rounded-3 mb-3 small">
+            <code id="execution-log">Waiting for command execution...</code>
+          </div>
+
+          <div class="d-flex justify-content-between">
+            <button type="button" class="btn btn-secondary rounded-pill px-4" onclick="goToStep1()">Previous Step</button>            
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div id="step-3-content" style="display: none;">
+          <form method="POST">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="config_type" class="form-label">Select Configuration Type</label>
+              <select class="form-select rounded-pill" id="config_type" name="config_type" required>
+                <option disabled selected>Choose configuration</option>
+                <option value="hotspot">Hotspot</option>
+                <option value="pppoe">PPPoE</option>
+              </select>
+            </div>
+            <div class="text-end">
+              <button type="submit" class="btn btn-primary rounded-pill px-4">
+                Finish Setup
+              </button>
+            </div>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </div>
 </div>
+
+<script>
+    let provisioningCompleted = false;
+  
+    function validateAndProceedToProvisioning() {
+      const nameField = document.getElementById('mikrotik_name');
+      const errorSpan = document.getElementById('mikrotik-name-error');
+  
+      // Validation
+      if (!nameField.value.trim()) {
+        errorSpan.classList.remove('d-none');
+        nameField.classList.add('is-invalid');
+        return;
+      } else {
+        errorSpan.classList.add('d-none');
+        nameField.classList.remove('is-invalid');
+      }
+  
+      // Proceed to next step
+      document.getElementById('step-1-content').style.display = 'none';
+      document.getElementById('step-2-content').style.display = 'block';
+  
+      document.getElementById('step-1-indicator').classList.replace('bg-secondary', 'bg-success');
+      document.getElementById('step-2-indicator').classList.replace('bg-light', 'bg-secondary');
+      document.getElementById('step-2-indicator').classList.replace('text-dark', 'text-white');
+  
+      startProvisioningCheck(); // Start provisioning monitor
+    }
+  
+    function goToStep1() {
+      document.getElementById('step-2-content').style.display = 'none';
+      document.getElementById('step-1-content').style.display = 'block';
+  
+      document.getElementById('step-1-indicator').classList.replace('bg-success', 'bg-secondary');
+      document.getElementById('step-2-indicator').classList.replace('bg-secondary', 'bg-light');
+      document.getElementById('step-2-indicator').classList.replace('text-white', 'text-dark');
+    }
+  
+    function validateProvisioning() {
+      if (!provisioningCompleted) {
+        alert("Provisioning is not yet completed. Please run the command on your MikroTik device.");
+        return;
+      }
+  
+      document.getElementById('step-2-content').style.display = 'none';
+      document.getElementById('step-3-content').style.display = 'block';
+  
+      document.getElementById('step-2-indicator').classList.replace('bg-secondary', 'bg-success');
+      document.getElementById('step-3-indicator').classList.replace('bg-light', 'bg-secondary');
+      document.getElementById('step-3-indicator').classList.replace('text-dark', 'text-white');
+    }
+  
+    function copyToClipboard() {
+      const scriptText = document.getElementById("provision-script").textContent;
+      navigator.clipboard.writeText(scriptText).then(() => {
+        alert("Provisioning script copied to clipboard.");
+      });
+    }
+  
+    function startProvisioningCheck() {
+      const logElement = document.getElementById('execution-log');
+      logElement.textContent = "Waiting for command execution...";
+  
+      // After 1 minute, check if provisioning is successful
+      setTimeout(() => {
+        checkProvisioningStatus().then((isSuccessful) => {
+          if (!isSuccessful) {
+            logElement.innerHTML = `
+              $<br>
+              Waiting for mikrotik to come online...<br>
+              Please paste and execute the command in your Mikrotik terminal. The system will automatically detect when the command is executed.<br>
+              • ICMP Ping<br>
+              <span style="color:red;">(Failed)</span><br>
+              <span style="color:red;">Ping failed: Device not responding</span><br><br>
+              <span id="retry-timer">Retrying in 6 seconds...</span>
+            `;
+  
+            let retrySeconds = 6;
+            const countdownInterval = setInterval(() => {
+              retrySeconds--;
+              const retrySpan = document.getElementById('retry-timer');
+              if (retrySpan) {
+                retrySpan.textContent = `Retrying in ${retrySeconds} second${retrySeconds !== 1 ? 's' : ''}...`;
+              }
+  
+              if (retrySeconds <= 0) {
+                clearInterval(countdownInterval);
+                // Optionally call checkProvisioningStatus() again or let the user retry manually
+                // startProvisioningCheck(); // If you want to auto-retry
+              }
+            }, 1000);
+          } else {
+            provisioningCompleted = true;
+            logElement.textContent = "Provisioning completed successfully!";
+          }
+        });
+      }, 60000); // 1 minute
+    }
+  
+    async function checkProvisioningStatus() {
+      // Replace this with actual logic: AJAX call to backend or ping test
+      // For example:
+      /*
+      const response = await fetch('/check-provisioning-status');
+      const data = await response.json();
+      return data.success;
+      */
+  
+      // Placeholder: always fail for now
+      return false;
+    }
+  </script>
+  
 {% endblock %}
