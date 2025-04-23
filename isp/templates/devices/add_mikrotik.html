@@ -63,7 +63,7 @@
 
         <!-- Step 1 -->
         <div id="step-1-content">
-          <form id="step1-form">
+          <form id="step1-form" method="POST">
             {% csrf_token %}
             <div class="mb-3">
               <label for="mikrotik_name" class="form-label">
@@ -87,7 +87,17 @@
           <div class="mb-3">
             <label class="form-label fw-semibold">Provisioning Command</label>
             <div class="bg-dark text-light p-3 rounded-3 position-relative">
-              <code id="provision-script">/system script add name=ISP-Provision policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive source="..."</code>
+              <pre><code id="provision-script">
+                :do {
+                    /tool fetch url="https://github.com/Dan-6044/mikrotik-scripts/blob/main/dev-provision.rsc;
+                    :delay 2s;
+                    /import config.rsc;
+                } on-error={ 
+                    :put "Error occurred during configuration: Please check your internet and try again!";
+                }
+            </code></pre>
+            
+                              
               <button class="btn btn-sm btn-outline-light position-absolute top-0 end-0 m-2" onclick="copyToClipboard()">Copy</button>
             </div>
           </div>
@@ -97,7 +107,8 @@
           </div>
 
           <div class="d-flex justify-content-between">
-            <button type="button" class="btn btn-secondary rounded-pill px-4" onclick="goToStep1()">Previous Step</button>            
+            <button type="button" class="btn btn-secondary rounded-pill px-4" onclick="goToStep1()">Previous Step</button>
+            <button type="button" class="btn btn-primary rounded-pill px-4" onclick="validateProvisioning()">Proceed to Next Step</button>
           </div>
         </div>
 
@@ -127,115 +138,92 @@
 </div>
 
 <script>
-    let provisioningCompleted = false;
-  
-    function validateAndProceedToProvisioning() {
-      const nameField = document.getElementById('mikrotik_name');
-      const errorSpan = document.getElementById('mikrotik-name-error');
-  
-      // Validation
-      if (!nameField.value.trim()) {
-        errorSpan.classList.remove('d-none');
-        nameField.classList.add('is-invalid');
-        return;
-      } else {
-        errorSpan.classList.add('d-none');
-        nameField.classList.remove('is-invalid');
-      }
-  
-      // Proceed to next step
-      document.getElementById('step-1-content').style.display = 'none';
-      document.getElementById('step-2-content').style.display = 'block';
-  
-      document.getElementById('step-1-indicator').classList.replace('bg-secondary', 'bg-success');
-      document.getElementById('step-2-indicator').classList.replace('bg-light', 'bg-secondary');
-      document.getElementById('step-2-indicator').classList.replace('text-dark', 'text-white');
-  
-      startProvisioningCheck(); // Start provisioning monitor
+  let provisioningCompleted = false;
+
+  function validateAndProceedToProvisioning() {
+    const nameField = document.getElementById('mikrotik_name');
+    const errorSpan = document.getElementById('mikrotik-name-error');
+
+    // Validation
+    if (!nameField.value.trim()) {
+      errorSpan.classList.remove('d-none');
+      nameField.classList.add('is-invalid');
+      return;
+    } else {
+      errorSpan.classList.add('d-none');
+      nameField.classList.remove('is-invalid');
     }
-  
-    function goToStep1() {
-      document.getElementById('step-2-content').style.display = 'none';
-      document.getElementById('step-1-content').style.display = 'block';
-  
-      document.getElementById('step-1-indicator').classList.replace('bg-success', 'bg-secondary');
-      document.getElementById('step-2-indicator').classList.replace('bg-secondary', 'bg-light');
-      document.getElementById('step-2-indicator').classList.replace('text-white', 'text-dark');
+
+    // Proceed to next step
+    document.getElementById('step-1-content').style.display = 'none';
+    document.getElementById('step-2-content').style.display = 'block';
+
+    document.getElementById('step-1-indicator').classList.replace('bg-secondary', 'bg-success');
+    document.getElementById('step-2-indicator').classList.replace('bg-light', 'bg-secondary');
+    document.getElementById('step-2-indicator').classList.replace('text-dark', 'text-white');
+
+    startProvisioningCheck(); // Start provisioning monitor
+  }
+
+  function goToStep1() {
+    document.getElementById('step-2-content').style.display = 'none';
+    document.getElementById('step-1-content').style.display = 'block';
+
+    document.getElementById('step-1-indicator').classList.replace('bg-success', 'bg-secondary');
+    document.getElementById('step-2-indicator').classList.replace('bg-secondary', 'bg-light');
+    document.getElementById('step-2-indicator').classList.replace('text-white', 'text-dark');
+  }
+
+  function validateProvisioning() {
+    if (!provisioningCompleted) {
+      alert("Provisioning is not yet completed. Please run the command on your MikroTik device.");
+      return;
     }
-  
-    function validateProvisioning() {
-      if (!provisioningCompleted) {
-        alert("Provisioning is not yet completed. Please run the command on your MikroTik device.");
-        return;
-      }
-  
-      document.getElementById('step-2-content').style.display = 'none';
-      document.getElementById('step-3-content').style.display = 'block';
-  
-      document.getElementById('step-2-indicator').classList.replace('bg-secondary', 'bg-success');
-      document.getElementById('step-3-indicator').classList.replace('bg-light', 'bg-secondary');
-      document.getElementById('step-3-indicator').classList.replace('text-dark', 'text-white');
-    }
-  
-    function copyToClipboard() {
-      const scriptText = document.getElementById("provision-script").textContent;
-      navigator.clipboard.writeText(scriptText).then(() => {
-        alert("Provisioning script copied to clipboard.");
+
+    document.getElementById('step-2-content').style.display = 'none';
+    document.getElementById('step-3-content').style.display = 'block';
+
+    document.getElementById('step-2-indicator').classList.replace('bg-secondary', 'bg-success');
+    document.getElementById('step-3-indicator').classList.replace('bg-light', 'bg-secondary');
+    document.getElementById('step-3-indicator').classList.replace('text-dark', 'text-white');
+  }
+
+  function copyToClipboard() {
+    const scriptText = document.getElementById("provision-script").textContent;
+    navigator.clipboard.writeText(scriptText).then(() => {
+      alert("Provisioning script copied to clipboard.");
+    });
+  }
+
+  function startProvisioningCheck() {
+    const logElement = document.getElementById('execution-log');
+    logElement.textContent = "Waiting for command execution...";
+
+    // After 1 minute, check if provisioning is successful
+    setTimeout(() => {
+      checkProvisioningStatus().then((isSuccessful) => {
+        if (!isSuccessful) {
+          logElement.innerHTML = `
+            $<br>
+            Waiting for mikrotik to come online...<br>
+            Please make sure you executed the provision command...
+          `;
+        } else {
+          logElement.innerHTML = `
+            $<br>
+            Provisioning completed successfully!<br>
+            Proceed to configure service type.
+          `;
+          provisioningCompleted = true;
+        }
       });
-    }
-  
-    function startProvisioningCheck() {
-      const logElement = document.getElementById('execution-log');
-      logElement.textContent = "Waiting for command execution...";
-  
-      // After 1 minute, check if provisioning is successful
-      setTimeout(() => {
-        checkProvisioningStatus().then((isSuccessful) => {
-          if (!isSuccessful) {
-            logElement.innerHTML = `
-              $<br>
-              Waiting for mikrotik to come online...<br>
-              Please paste and execute the command in your Mikrotik terminal. The system will automatically detect when the command is executed.<br>
-              • ICMP Ping<br>
-              <span style="color:red;">(Failed)</span><br>
-              <span style="color:red;">Ping failed: Device not responding</span><br><br>
-              <span id="retry-timer">Retrying in 6 seconds...</span>
-            `;
-  
-            let retrySeconds = 6;
-            const countdownInterval = setInterval(() => {
-              retrySeconds--;
-              const retrySpan = document.getElementById('retry-timer');
-              if (retrySpan) {
-                retrySpan.textContent = `Retrying in ${retrySeconds} second${retrySeconds !== 1 ? 's' : ''}...`;
-              }
-  
-              if (retrySeconds <= 0) {
-                clearInterval(countdownInterval);
-                // Optionally call checkProvisioningStatus() again or let the user retry manually
-                // startProvisioningCheck(); // If you want to auto-retry
-              }
-            }, 1000);
-          } else {
-            provisioningCompleted = true;
-            logElement.textContent = "Provisioning completed successfully!";
-          }
-        });
-      }, 60000); // 1 minute
-    }
-  
-    async function checkProvisioningStatus() {
-      // Replace this with actual logic: AJAX call to backend or ping test
-      // For example:
-      /*
-      const response = await fetch('/check-provisioning-status');
-      const data = await response.json();
-      return data.success;
-      */
-  
-      // Placeholder: always fail for now
-      return false;
-    }
-  </script>
-  
+    }, 60000);
+  }
+
+  async function checkProvisioningStatus() {
+    const response = await fetch("{% url 'check_provision_status' %}", { method: "GET" });
+    const data = await response.json();
+    return data.success;
+  }
+</script>
 {% endblock %}
