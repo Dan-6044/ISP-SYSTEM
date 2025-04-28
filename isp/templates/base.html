@@ -5,30 +5,169 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.png' %}">
-    <title>{% block title %}Voting System{% endblock %}</title>
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
-    <!-- Bootstrap ICONS -->
-    <link rel="stylesheet" href="{% static 'css/bootstrap-icons.min.css' %}">    
-        <!-- Custom CSS -->
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-     <!-- Leaflet CSS -->
-     <link rel="stylesheet" href="{% static 'css/leaflet.css' %}">
-     <!-- Font-awesome CSS -->
-     <link rel="stylesheet" href="{% static 'css/font-awesome.css' %}">
+    <title>{% block title %}ISP SYSTEM{% endblock %}</title>
 
+    <link rel="icon" href="{% static 'images/favicon.png' %}">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/bootstrap-icons.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/font-awesome.css' %}">
+    <link rel="stylesheet" href="{% static 'css/leaflet.css' %}">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
 
     {% block extra_css %}{% endblock %}
-    <style>
-       .container-fluid {
-    width: 100%;
-    margin: 0;
-    padding: 0;
-}
-    </style>
 </head>
 <body>
-   
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
+        <div class="container">
+            <!-- Logo on the left -->
+            <a class="navbar-brand fw-bold text-dark fs-4" href="{% url 'home' %}">ISP-SYSTEM</a>
+            
+            <!-- Nav links in the middle -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{% url 'home' %}">Home</a>
+                    </li>
+                    
+                    <!-- Features Dropdown -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="featuresDropdown" data-bs-toggle="dropdown">
+                            Features
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="featuresDropdown">
+                            <div class="row">
+                                <div class="col-6">
+                                    <li><a class="dropdown-item" href="#">Hotspot</a>
+                                        <small class="text-muted d-block">Automate hotspot billing. Accept M-pesa payment and be in control of your wifi</small>
+                                    </li>
+                                    <li><a class="dropdown-item" href="#">Internet Packages</a>
+                                        <small class="text-muted d-block">Customize your internet packages and offer clients the best deal</small>
+                                    </li>
+                                    <li><a class="dropdown-item" href="#">PPPoE Management</a>
+                                        <small class="text-muted d-block">Manage your PPPoE clients using this platform</small>
+                                    </li>
+                                    <li><a class="dropdown-item" href="#">PPPoE Management</a>
+                                        <small class="text-muted d-block">Manage your PPPoE clients using this platform</small>
+                                    </li>
+                                </div>
+                                <div class="col-6">
+                                    <li><a class="dropdown-item" href="#">Hotspot</a>
+                                        <small class="text-muted d-block">Automate hotspot billing. Accept M-pesa payment and be in control of your wifi</small>
+                                    </li>
+                                    <li><a class="dropdown-item" href="#">Internet Packages</a>
+                                        <small class="text-muted d-block">Customize your internet packages and offer clients the best deal</small>
+                                    </li>
+                                    <li><a class="dropdown-item" href="#">PPPoE Management</a>
+                                        <small class="text-muted d-block">Manage your PPPoE clients using this platform</small>
+                                    </li>
+                                    <li><a class="dropdown-item" href="#">PPPoE Management</a>
+                                        <small class="text-muted d-block">Manage your PPPoE clients using this platform</small>
+                                    </li>
+                                </div>
+                            </div>
+                        </ul>
+                    </li>
+                    
+                    <!-- Solutions Dropdown -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="solutionsDropdown" data-bs-toggle="dropdown">
+                            Solutions
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="solutionsDropdown">
+                            <div class="row">
+                                <div class="col-6">
+                                    <li><a class="dropdown-item" href="#">Hotspot</a>
+                                        <small class="text-muted d-block">Automate hotspot billing. Accept M-pesa payment and be in control of your wifi</small>
+                                    </li>
+                                    <li><a class="dropdown-item" href="#">Internet Packages</a>
+                                        <small class="text-muted d-block">Customize your internet packages and offer clients the best deal</small>
+                                    </li>
+                                    <li><a class="dropdown-item" href="#">PPPoE Management</a>
+                                        <small class="text-muted d-block">Manage your PPPoE clients using this platform</small>
+                                    </li>
+                                    <li><a class="dropdown-item" href="#">PPPoE Management</a>
+                                        <small class="text-muted d-block">Manage your PPPoE clients using this platform</small>
+                                    </li>
+                                </div>
+                                <div class="col-6">
+                                    <li><a class="dropdown-item" href="#">Hotspot</a>
+                                        <small class="text-muted d-block">Automate hotspot billing. Accept M-pesa payment and be in control of your wifi</small>
+                                    </li>
+                                    <li><a class="dropdown-item" href="#">Internet Packages</a>
+                                        <small class="text-muted d-block">Customize your internet packages and offer clients the best deal</small>
+                                    </li>
+                                    <li><a class="dropdown-item" href="#">PPPoE Management</a>
+                                        <small class="text-muted d-block">Manage your PPPoE clients using this platform</small>
+                                    </li>
+                                    <li><a class="dropdown-item" href="#">PPPoE Management</a>
+                                        <small class="text-muted d-block">Manage your PPPoE clients using this platform</small>
+                                    </li>
+                                </div>
+                            </div>
+                        </ul>
+                    </li>
+                    
+                    <!-- Service Dropdown -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="serviceDropdown" data-bs-toggle="dropdown">
+                            Service
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="serviceDropdown">
+                            <div class="row">
+                                <div class="col-6">
+                                    <li><a class="dropdown-item" href="#">Consulting</a>
+                                        <small class="text-muted d-block">Description for consulting</small>
+                                    </li>
+                                    <li><a class="dropdown-item" href="#">Implementation</a>
+                                        <small class="text-muted d-block">Description for implementation</small>
+                                    </li>
+                                    <li><a class="dropdown-item" href="#">Support</a>
+                                        <small class="text-muted d-block">Description for support</small>
+                                    </li>
+                                    <li><a class="dropdown-item" href="#">Training</a>
+                                        <small class="text-muted d-block">Description for training</small>
+                                    </li>
+                                </div>
+                                <div class="col-6">
+                                    <li><a class="dropdown-item" href="#">Maintenance</a>
+                                        <small class="text-muted d-block">Description for maintenance</small>
+                                    </li>
+                                    <li><a class="dropdown-item" href="#">Upgrades</a>
+                                        <small class="text-muted d-block">Description for upgrades</small>
+                                    </li>
+                                    <li><a class="dropdown-item" href="#">Custom Services</a>
+                                        <small class="text-muted d-block">Description for custom services</small>
+                                    </li>
+                                    <li><a class="dropdown-item" href="#">Optimization</a>
+                                        <small class="text-muted d-block">Description for optimization</small>
+                                    </li>
+                                </div>
+                            </div>
+                        </ul>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Blog</a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">About Us</a>
+                    </li>
+                </ul>
+                
+                <!-- Buttons on the right -->
+                <div class="nav-buttons d-flex">
+                    <a href="#" class="btn btn-outline-primary">Schedule Demo</a>
+                    <a href="#" class="btn btn-primary">Show Packages</a>
+                </div>
+            </div>
+        </div>
+    </nav>
 
     <!-- Main Content -->
     <main class="container-fluid py-2">
@@ -37,10 +176,108 @@
         {% endblock %}
     </main>
 
-   
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <!-- Column 1: Logo and About -->
+                <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">
+                    <div class="footer-logo">
+                        <h2 class="fw-bold text-warning fs-4" href="{% url 'home' %}">ISP-SYSTEM</h2>
+                    </div>
+                    <p class="text-light">Providing innovative internet solutions for your business and home needs since 2010.</p>
+                    <div class="social-icons mt-4">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                
+                <!-- Column 2: Quick Links -->
+                <div class="col-lg-2 col-md-6 mb-4 mb-lg-0">
+                    <h5>Quick Links</h5>
+                    <ul>
+                        <li><a href="{% url 'home' %}">Home</a></li>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Services</a></li>
+                        <li><a href="#">Solutions</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Column 3: Solutions -->
+                <div class="col-lg-2 col-md-6 mb-4 mb-lg-0">
+                    <h5>Our Services</h5>
+                    <ul>
+                        <li><a href="#">Home Internet</a></li>
+                        <li><a href="#">Business Fiber</a></li>
+                        <li><a href="#">Cloud Services</a></li>
+                        <li><a href="#">VoIP Solutions</a></li>
+                        <li><a href="#">Network Security</a></li>
+                        <li><a href="#">Managed IT</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Column 4: Support -->
+                <div class="col-lg-2 col-md-6 mb-4 mb-lg-0">
+                    <h5>Support</h5>
+                    <ul>
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Network Status</a></li>
+                        <li><a href="#">Contact Support</a></li>
+                        <li><a href="#">FAQs</a></li>
+                        <li><a href="#">Community</a></li>
+                        <li ><a href="#">Documentation</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Column 5: Contact -->
+                <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">
+                    <h5>Contact Us</h5>
+                    <ul class="list-unstyled contact-info">
+                        <li class="mb-3">
+                            <i class="fas fa-map-marker-alt"></i>
+                            123 Tech Park, Suite 200, San Francisco, CA 94107
+                        </li>
+                        <li class="mb-3">
+                            <i class="fas fa-phone"></i>
+                            +1 (555) 123-4567
+                        </li>
+                        <li class="mb-3">
+                            <i class="fas fa-envelope"></i>
+                            support@ispsystem.com
+                        </li>
+                        <li class="mb-3">
+                            <i class="fas fa-clock"></i>
+                            24/7 Customer Support
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Footer Bottom -->
+            <div class="footer-bottom">
+                <div class="row">
+                    <div class="col-md-6 text-center text-md-start">
+                        <p class="mb-0 text-light">&copy; 2023 ISP System. All rights reserved.</p>
+                    </div>
+                    <div class="col-md-6 text-center text-md-end">
+                        <ul class="list-inline mb-0">
+                            <li class="list-inline-item"><a href="#">Privacy Policy</a></li>
+                            <li class="list-inline-item"><a href="#">Terms of Service</a></li>
+                            <li class="list-inline-item"><a href="#">Sitemap</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
 
     <!-- Bootstrap Bundle with Popper -->
-    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{% static 'js/leaflet.js' %}"></script>
     {% block extra_js %}{% endblock %}
 </body>

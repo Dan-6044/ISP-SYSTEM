@@ -139,12 +139,12 @@
 
 <script>
   let provisioningCompleted = false;
+  let provisioningCheckerInterval = null;
 
   function validateAndProceedToProvisioning() {
     const nameField = document.getElementById('mikrotik_name');
     const errorSpan = document.getElementById('mikrotik-name-error');
 
-    // Validation
     if (!nameField.value.trim()) {
       errorSpan.classList.remove('d-none');
       nameField.classList.add('is-invalid');
@@ -154,24 +154,49 @@
       nameField.classList.remove('is-invalid');
     }
 
-    // Proceed to next step
-    document.getElementById('step-1-content').style.display = 'none';
-    document.getElementById('step-2-content').style.display = 'block';
+    // Save MikroTik name to server immediately (AJAX)
+    fetch("{% url 'add_mikrotik' %}", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": "{{ csrf_token }}",
+      },
+      body: JSON.stringify({
+        mikrotik_name: nameField.value.trim()
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        // Proceed to Step 2
+        document.getElementById('step-1-content').style.display = 'none';
+        document.getElementById('step-2-content').style.display = 'block';
+        document.getElementById('step-1-indicator').classList.replace('bg-secondary', 'bg-success');
+        document.getElementById('step-2-indicator').classList.replace('bg-light', 'bg-secondary');
+        document.getElementById('step-2-indicator').classList.replace('text-dark', 'text-white');
 
-    document.getElementById('step-1-indicator').classList.replace('bg-secondary', 'bg-success');
-    document.getElementById('step-2-indicator').classList.replace('bg-light', 'bg-secondary');
-    document.getElementById('step-2-indicator').classList.replace('text-dark', 'text-white');
-
-    startProvisioningCheck(); // Start provisioning monitor
+        startProvisioningCheck();
+      } else {
+        alert('Failed to save MikroTik name. Please try again.');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('An error occurred. Please check your connection.');
+    });
   }
 
   function goToStep1() {
     document.getElementById('step-2-content').style.display = 'none';
     document.getElementById('step-1-content').style.display = 'block';
-
     document.getElementById('step-1-indicator').classList.replace('bg-success', 'bg-secondary');
     document.getElementById('step-2-indicator').classList.replace('bg-secondary', 'bg-light');
     document.getElementById('step-2-indicator').classList.replace('text-white', 'text-dark');
+    
+    // Stop provisioning checker if user goes back
+    if (provisioningCheckerInterval) {
+      clearInterval(provisioningCheckerInterval);
+    }
   }
 
   function validateProvisioning() {
@@ -179,13 +204,7 @@
       alert("Provisioning is not yet completed. Please run the command on your MikroTik device.");
       return;
     }
-
-    document.getElementById('step-2-content').style.display = 'none';
-    document.getElementById('step-3-content').style.display = 'block';
-
-    document.getElementById('step-2-indicator').classList.replace('bg-secondary', 'bg-success');
-    document.getElementById('step-3-indicator').classList.replace('bg-light', 'bg-secondary');
-    document.getElementById('step-3-indicator').classList.replace('text-dark', 'text-white');
+    moveToStep3();
   }
 
   function copyToClipboard() {
@@ -199,31 +218,42 @@
     const logElement = document.getElementById('execution-log');
     logElement.textContent = "Waiting for command execution...";
 
-    // After 1 minute, check if provisioning is successful
-    setTimeout(() => {
-      checkProvisioningStatus().then((isSuccessful) => {
-        if (!isSuccessful) {
-          logElement.innerHTML = `
-            $<br>
-            Waiting for mikrotik to come online...<br>
-            Please make sure you executed the provision command...
-          `;
-        } else {
-          logElement.innerHTML = `
-            $<br>
-            Provisioning completed successfully!<br>
-            Proceed to configure service type.
-          `;
-          provisioningCompleted = true;
-        }
-      });
-    }, 60000);
+    // Check every 5 seconds
+    provisioningCheckerInterval = setInterval(async () => {
+      const isSuccessful = await checkProvisioningStatus();
+      if (isSuccessful) {
+        provisioningCompleted = true;
+        clearInterval(provisioningCheckerInterval);
+
+        logElement.innerHTML = `
+          $<br>
+          Provisioning completed successfully!<br>
+          Proceeding to configure service type...
+        `;
+
+        // Auto move to Step 3 after a small delay
+        setTimeout(moveToStep3, 3000);
+      }
+    }, 5000);
   }
 
   async function checkProvisioningStatus() {
-    const response = await fetch("{% url 'check_provision_status' %}", { method: "GET" });
-    const data = await response.json();
-    return data.success;
+    try {
+      const response = await fetch("{% url 'check_provision_status' %}", { method: "GET" });
+      const data = await response.json();
+      return data.success;
+    } catch (error) {
+      console.error('Provision check failed:', error);
+      return false;
+    }
+  }
+
+  function moveToStep3() {
+    document.getElementById('step-2-content').style.display = 'none';
+    document.getElementById('step-3-content').style.display = 'block';
+    document.getElementById('step-2-indicator').classList.replace('bg-secondary', 'bg-success');
+    document.getElementById('step-3-indicator').classList.replace('bg-light', 'bg-secondary');
+    document.getElementById('step-3-indicator').classList.replace('text-dark', 'text-white');
   }
 </script>
 {% endblock %}

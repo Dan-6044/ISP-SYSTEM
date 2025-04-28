@@ -5,17 +5,16 @@ from . import views
 
 
 urlpatterns = [ 
+        ##LANDING PAGES##
+       path('home/', views.home, name='home'),        
+
                
       path('signin/', views.signin, name='signin'),
-      path('signup/', views.signup, name='signup'),
-      
+      path('signup/', views.signup, name='signup'),      
       
       
       path('mikrotiks/', views.mikrotik, name='mikrotiks'),
-     path('add_mikrotik/', views.add_mikrotik, name='add_mikrotik'),
-    path('provision/<str:mikrotik_name>/', views.provision_device, name='provision_device'),
-    path('check_provision_status/', views.check_provision_status, name='check_provision_status'),
-      
+     path('add_mikrotik/', views.add_mikrotik, name='add_mikrotik'),      
       
       path('equipment/', views.equipments, name='equipment'),
       path('create-equipment/', views.create_equipments, name='create-equipment'),

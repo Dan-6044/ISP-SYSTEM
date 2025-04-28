@@ -1,8 +1,11 @@
+# models.py
 from django.db import models
-from django.utils import timezone
 
 class MikroTik(models.Model):
-    name = models.CharField(max_length=100, unique=True)
-    ip_address = models.GenericIPAddressField()
-    provisioned = models.BooleanField(default=False)
-    provision_start_time = models.DateTimeField(null=True, blank=True)  # New field
+    name = models.CharField(max_length=255)
+    provisioning_command = models.TextField(blank=True, null=True)
+    provisioning_status = models.CharField(max_length=50, default='Pending')  # Can be 'Pending', 'Provisioning', 'Successful'
+    is_ppoe = models.BooleanField(default=False)  # True for PPPoE, False for Hotspot
+
+    def __str__(self):
+        return self.name

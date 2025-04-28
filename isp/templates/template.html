@@ -1,0 +1,68 @@
+<!-- add_mikrotik.html -->
+{% extends 'master.html' %}
+
+{% block content %}
+<h2>Step {{ step }}: Add MikroTik</h2>
+
+<!-- Step 1: Add MikroTik Name -->
+<div id="step-1" class="step">
+    <h3>Step 1: Add MikroTik Name</h3>
+    <form method="post">
+        {% csrf_token %}
+        <label for="mikrotik_name">MikroTik Name:</label>
+        <input type="text" id="mikrotik_name" name="mikrotik_name" required>
+        <button type="submit">Next</button>
+    </form>
+</div>
+
+<!-- Step 2: Provisioning Command and Status -->
+<div id="step-2" class="step" style="display: none;">
+    <h3>Step 2: Provisioning Command</h3>
+    {% if mikrotik %}
+        <p>Your MikroTik provisioning command:</p>
+        <pre><code>{{ mikrotik.provisioning_command }}</code></pre>
+
+        <p>Status: {{ mikrotik.provisioning_status }}</p>
+
+        {% if mikrotik.provisioning_status == 'Provisioning Failed' %}
+            <p>Provisioning failed after 20 attempts. Please try again.</p>
+        {% else %}
+            <p>Waiting for provisioning to be successful...</p>
+        {% endif %}
+        
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="mikrotik_id" value="{{ mikrotik.id }}">
+            <button type="submit">Next Step: Configure MikroTik</button>
+        </form>
+    {% endif %}
+</div>
+
+<!-- Step 3: Configure MikroTik -->
+<div id="step-3" class="step" style="display: none;">
+    <h3>Step 3: Configure MikroTik</h3>
+    <form method="post">
+        {% csrf_token %}
+        <label for="is_ppoe">Is this a PPPoE configuration?</label>
+        <input type="checkbox" id="is_ppoe" name="is_ppoe">
+        <button type="submit">Save Configuration</button>
+    </form>
+</div>
+
+<!-- JavaScript to Show/Hide Steps -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const step = '{{ step }}';  // Get the current step from the backend
+        const steps = document.querySelectorAll('.step');
+
+        // Hide all steps
+        steps.forEach(function(stepElement) {
+            stepElement.style.display = 'none';
+        });
+
+        // Show the current step
+        document.getElementById('step-' + step).style.display = 'block';
+    });
+</script>
+
+{% endblock %}

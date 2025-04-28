@@ -9,6 +9,12 @@ from django.contrib.auth.decorators import login_required
 
 
 
+#### LANDING PAGE ##
+
+def home(request):
+    
+    return render(request, 'Pages/landingPage.html')
+
 def signup(request):
     if request.method == 'POST':
         form = SignupForm(request.POST)
@@ -64,82 +70,54 @@ def mikrotik(request):
     return render(request, 'devices/mikrotik.html')
 
 
+# views.py
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from .models import MikroTik
-from django.core.exceptions import ObjectDoesNotExist
+from time import sleep
 
-# Add MikroTik form submission and provisioning command logic
 def add_mikrotik(request):
+    step = request.GET.get('step', '1')  # Default to step 1
+
     if request.method == 'POST':
-        # Handle MikroTik name submission and proceed to provisioning
-        mikrotik_name = request.POST.get('mikrotik_name')
+        if step == '1':  # Step 1: Save MikroTik name
+            mikrotik_name = request.POST.get('mikrotik_name')
+            mikrotik = MikroTik.objects.create(name=mikrotik_name)
+            return redirect('add_mikrotik', step='2', mikrotik_id=mikrotik.id)
 
-        if not mikrotik_name:
-            return render(request, 'devices/add_mikrotik.html', {'error': "MikroTik name is required."})
-
-        # Save MikroTik name to the database or check if it already exists
-        try:
-            mikro, created = MikroTik.objects.get_or_create(name=mikrotik_name)
-            if not created:
-                return render(request, 'devices/add_mikrotik.html', {'error': "MikroTik already exists."})
-        except Exception as e:
-            return render(request, 'devices/add_mikrotik.html', {'error': str(e)})
-
-        # Proceed to Step 2 (Provisioning)
-        return render(request, 'devices/add_mikrotik.html', {'mikrotik_name': mikrotik_name})
-
-    return render(request, 'devices/add_mikrotik.html')
-
-
-from django.utils import timezone
-
-def provision_device(request, mikrotik_name):
-    try:
-        mikrotik = MikroTik.objects.get(name=mikrotik_name)
-    except ObjectDoesNotExist:
-        return JsonResponse({'success': False, 'message': 'MikroTik device not found.'}, status=404)
-
-    provisioning_url = "http://192.168.88.100/dev-provision.rsc"
-    provisioning_command = f"/tool fetch url={provisioning_url} dst-path=config.rsc; /import config.rsc;"
-
-    # Only set start time once
-    if not mikrotik.provision_start_time:
-        mikrotik.provision_start_time = timezone.now()
-        mikrotik.save()
-
-    return JsonResponse({
-        'success': True,
-        'message': 'Provisioning started. Please wait 50 seconds.',
-        'command': provisioning_command
-    })
-
-from datetime import timedelta
-
-def check_provision_status(request, mikrotik_name):
-    try:
-        mikrotik = MikroTik.objects.get(name=mikrotik_name)
-    except ObjectDoesNotExist:
-        return JsonResponse({'success': False, 'message': 'MikroTik device not found.'}, status=404)
-
-    if not mikrotik.provision_start_time:
-        return JsonResponse({'success': False, 'message': 'Provisioning has not started.'})
-
-    elapsed = timezone.now() - mikrotik.provision_start_time
-
-    if elapsed.total_seconds() >= 50:
-        if not mikrotik.provisioned:
-            mikrotik.provisioned = True
+        elif step == '2':  # Step 2: Generate command and provisioning status
+            mikrotik_id = request.POST.get('mikrotik_id')
+            mikrotik = MikroTik.objects.get(id=mikrotik_id)
+            provision_command = f"/interface ethernet set ether1 name={mikrotik.name}_ether1"
+            mikrotik.provisioning_command = provision_command
             mikrotik.save()
-        return JsonResponse({'success': True, 'message': 'Provisioning completed.'})
-    else:
-        return JsonResponse({
-            'success': False,
-            'message': f'Provisioning in progress. Please wait {int(50 - elapsed.total_seconds())} seconds.'
-        })
 
+            # Simulate provisioning process
+            attempt_count = 0
+            while attempt_count < 20:
+                sleep(2)
+                attempt_count += 1
+                mikrotik.provisioning_status = f'Attempt {attempt_count}/20'
+                mikrotik.save()
+                if attempt_count == 20:
+                    mikrotik.provisioning_status = 'Provisioning Failed'
+                    mikrotik.save()
+                    break
+                else:
+                    mikrotik.provisioning_status = f'Attempt {attempt_count}/20'
+                    mikrotik.save()
 
+            return redirect('add_mikrotik', step='3', mikrotik_id=mikrotik.id)
 
+        elif step == '3':  # Step 3: Configure MikroTik (PPPoE or Hotspot)
+            mikrotik_id = request.POST.get('mikrotik_id')
+            mikrotik = MikroTik.objects.get(id=mikrotik_id)
+            mikrotik.is_ppoe = request.POST.get('is_ppoe') == 'on'
+            mikrotik.save()
+            return redirect('mikrotik_list')  # Redirect to a list page or confirmation
+
+    mikrotik = MikroTik.objects.filter(id=request.GET.get('mikrotik_id')).first() if step != '1' else None
+    return render(request, 'devices/add_mikrotik.html', {'step': step, 'mikrotik': mikrotik})
 
 
 
